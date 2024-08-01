@@ -15,7 +15,6 @@ public class NewJFrame extends javax.swing.JFrame {
   public NewJFrame() {
     initComponents();
     initConnection();
-
     fillPatient();
     fillDoctor();
     displayTable1();
