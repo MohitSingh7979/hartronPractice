@@ -10,7 +10,6 @@ import javax.swing.table.DefaultTableModel;
 public class NewJFrame extends javax.swing.JFrame {
 
   Connection con;
-  ResultSet rs;
   String sql;
 
   public NewJFrame() {
@@ -20,27 +19,35 @@ public class NewJFrame extends javax.swing.JFrame {
     fillDoctor();
     displayTable1();
     displayTable2();
+//    fillAppoint();
   }
 
-  void execute() {
+  ResultSet execute() {
+    ResultSet rs = null;
     try {
       Statement st = con.createStatement();
       rs = st.executeQuery(sql);
+
     } catch (SQLException ex) {
       Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
     }
+    return rs;
   }
 
-  void execute(Object[] data) {
+  ResultSet execute(Object[] data) {
+    ResultSet rs = null;
     try {
       PreparedStatement ps = con.prepareStatement(sql);
       for (int i = 0; i < data.length; i++) {
         ps.setObject(i + 1, data[i]);
       }
       ps.execute();
+      rs = ps.getGeneratedKeys();
+
     } catch (SQLException ex) {
       Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
     }
+    return rs;
   }
 
   void initConnection() {
@@ -54,10 +61,10 @@ public class NewJFrame extends javax.swing.JFrame {
 
   void fillCombo(JComboBox box) {
     try {
-      execute();
+      var rs = execute();
       box.removeAllItems();
       while (rs.next()) {
-        box.addItem((String) rs.getObject(1));
+        box.addItem(rs.getString(1));
       }
     } catch (SQLException ex) {
       Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -66,14 +73,14 @@ public class NewJFrame extends javax.swing.JFrame {
 
   void displayTable(JTable table, int col) {
     try {
-      execute();
+      var rs = execute();
       var mdl = (DefaultTableModel) table.getModel();
       mdl.setRowCount(0);
 
       while (rs.next()) {
         Object[] data = new Object[col];
-        for (int i = 1; i <= col; i++) {
-          data[i] = rs.getObject(i);
+        for (int i = 0; i < col; i++) {
+          data[i] = rs.getObject(i + 1);
         }
         mdl.addRow(data);
       }
@@ -90,7 +97,7 @@ public class NewJFrame extends javax.swing.JFrame {
       + "";
     fillCombo(patientAppoint);
     sql = " select"
-      + " patient_name"
+      + " distinct patient_name"
       + " from"
       + " appointment a"
       + " join patient_master p"
@@ -106,15 +113,27 @@ public class NewJFrame extends javax.swing.JFrame {
       + " doctor_master"
       + "";
     fillCombo(doctorAppoint);
-    sql = " select"
-      + " doctor_name"
+    sql = " select "
+      + " distinct doctor_name"
       + " from"
       + " appointment a"
       + " join doctor_master d"
       + " on a.doctor_id = d.doctor_id"
       + "";
     fillCombo(doctorTreat);
+  }
 
+  void fillAppoint() {
+    var patName = patientTreat.getSelectedItem();
+    var docName = doctorTreat.getSelectedItem();
+
+    sql = ("select appointment_id from appointment a "
+      + " join doctor_master d"
+      + " on a.doctor_id = d.doctor_id"
+      + " join patient_master p"
+      + " on a.patient_id = p.patient_id"
+      + " where doctor_name = '%s' and patient_name = '%s'  ").formatted(docName, patName);
+    fillCombo(appointIdTreat);
   }
 
   void displayTable1() {
@@ -157,12 +176,9 @@ public class NewJFrame extends javax.swing.JFrame {
   // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
   private void initComponents() {
 
-    buttonGroup1 = new javax.swing.ButtonGroup();
     jPanel1 = new javax.swing.JPanel();
     appointDate = new javax.swing.JSpinner();
     jLabel3 = new javax.swing.JLabel();
-    status = new javax.swing.JComboBox<>();
-    jLabel6 = new javax.swing.JLabel();
     jLabel7 = new javax.swing.JLabel();
     jLabel4 = new javax.swing.JLabel();
     doctorAppoint = new javax.swing.JComboBox<>();
@@ -170,7 +186,9 @@ public class NewJFrame extends javax.swing.JFrame {
     fee = new javax.swing.JTextField();
     jLabel2 = new javax.swing.JLabel();
     patientAppoint = new javax.swing.JComboBox<>();
-    jButton2 = new javax.swing.JButton();
+    btnAppoint = new javax.swing.JButton();
+    status1 = new javax.swing.JComboBox<>();
+    jLabel12 = new javax.swing.JLabel();
     jPanel2 = new javax.swing.JPanel();
     treatDate = new javax.swing.JSpinner();
     jLabel8 = new javax.swing.JLabel();
@@ -185,23 +203,21 @@ public class NewJFrame extends javax.swing.JFrame {
     jLabel15 = new javax.swing.JLabel();
     medication = new javax.swing.JTextField();
     charges = new javax.swing.JTextField();
-    jButton1 = new javax.swing.JButton();
     jLabel16 = new javax.swing.JLabel();
     appointIdTreat = new javax.swing.JComboBox<>();
+    jLabel6 = new javax.swing.JLabel();
+    status = new javax.swing.JComboBox<>();
     jScrollPane1 = new javax.swing.JScrollPane();
     jTable1 = new javax.swing.JTable();
     jScrollPane2 = new javax.swing.JScrollPane();
     jTable2 = new javax.swing.JTable();
+    btnTreat = new javax.swing.JButton();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
     appointDate.setModel(new javax.swing.SpinnerDateModel());
 
     jLabel3.setText("Doctor");
-
-    status.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Unpaid", "Paid", "Partial" }));
-
-    jLabel6.setText("Status");
 
     jLabel7.setText("Fee");
 
@@ -213,38 +229,42 @@ public class NewJFrame extends javax.swing.JFrame {
 
     jLabel2.setText("Patient");
 
-    jButton2.setText("appoint");
-    jButton2.addActionListener(new java.awt.event.ActionListener() {
+    btnAppoint.setText("appoint");
+    btnAppoint.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
-        jButton2ActionPerformed(evt);
+        btnAppointActionPerformed(evt);
       }
     });
+
+    status1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pending", "Confirmed", "Cancelled" }));
+
+    jLabel12.setText("Status");
 
     javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
     jPanel1.setLayout(jPanel1Layout);
     jPanel1Layout.setHorizontalGroup(
       jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+      .addComponent(btnAppoint, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
       .addGroup(jPanel1Layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addGroup(jPanel1Layout.createSequentialGroup()
+            .addComponent(jLabel1)
+            .addGap(0, 0, Short.MAX_VALUE))
           .addGroup(jPanel1Layout.createSequentialGroup()
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
               .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
               .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
               .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-              .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-              .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+              .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+              .addComponent(status1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
               .addComponent(doctorAppoint, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
               .addComponent(appointDate)
-              .addComponent(status, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
               .addComponent(fee)
-              .addComponent(patientAppoint, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-          .addGroup(jPanel1Layout.createSequentialGroup()
-            .addComponent(jLabel1)
-            .addGap(0, 0, Short.MAX_VALUE)))
+              .addComponent(patientAppoint, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
         .addContainerGap())
     );
     jPanel1Layout.setVerticalGroup(
@@ -266,14 +286,14 @@ public class NewJFrame extends javax.swing.JFrame {
           .addComponent(appointDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-          .addComponent(jLabel6)
-          .addComponent(status, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+          .addComponent(jLabel12)
+          .addComponent(status1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(jLabel7)
           .addComponent(fee, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        .addComponent(jButton2))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 134, Short.MAX_VALUE)
+        .addComponent(btnAppoint))
     );
 
     treatDate.setModel(new javax.swing.SpinnerDateModel());
@@ -286,11 +306,23 @@ public class NewJFrame extends javax.swing.JFrame {
 
     jLabel11.setText("Medication");
 
+    doctorTreat.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        doctorTreatActionPerformed(evt);
+      }
+    });
+
     jLabel13.setText("Treatment");
 
     diagnosis.setText("cancer");
 
     jLabel14.setText("Patient");
+
+    patientTreat.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        patientTreatActionPerformed(evt);
+      }
+    });
 
     jLabel15.setText("Charges");
 
@@ -298,20 +330,16 @@ public class NewJFrame extends javax.swing.JFrame {
 
     charges.setText("100");
 
-    jButton1.setText("treat");
-    jButton1.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        jButton1ActionPerformed(evt);
-      }
-    });
-
     jLabel16.setText("Appointment ID");
+
+    jLabel6.setText("Status");
+
+    status.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Unpaid", "Paid", "Partial" }));
 
     javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
     jPanel2.setLayout(jPanel2Layout);
     jPanel2Layout.setHorizontalGroup(
       jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
       .addGroup(jPanel2Layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -335,7 +363,11 @@ public class NewJFrame extends javax.swing.JFrame {
               .addComponent(appointIdTreat, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
           .addGroup(jPanel2Layout.createSequentialGroup()
             .addComponent(jLabel13)
-            .addGap(0, 0, Short.MAX_VALUE)))
+            .addGap(0, 0, Short.MAX_VALUE))
+          .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+            .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+            .addComponent(status, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         .addContainerGap())
     );
     jPanel2Layout.setVerticalGroup(
@@ -371,8 +403,11 @@ public class NewJFrame extends javax.swing.JFrame {
         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(jLabel15)
           .addComponent(charges, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 22, Short.MAX_VALUE)
-        .addComponent(jButton1))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(jLabel6)
+          .addComponent(status, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addContainerGap(16, Short.MAX_VALUE))
     );
 
     jTable1.setModel(new javax.swing.table.DefaultTableModel(
@@ -395,20 +430,32 @@ public class NewJFrame extends javax.swing.JFrame {
     ));
     jScrollPane2.setViewportView(jTable2);
 
+    btnTreat.setText("treat");
+    btnTreat.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        btnTreatActionPerformed(evt);
+      }
+    });
+
     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(layout.createSequentialGroup()
-        .addContainerGap()
-        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-          .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jScrollPane1))
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
+          .addGroup(layout.createSequentialGroup()
+            .addContainerGap()
+            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+              .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                  .addGroup(layout.createSequentialGroup()
+                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGap(0, 0, Short.MAX_VALUE))
+                  .addComponent(btnTreat, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+              .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING))))
         .addContainerGap())
     );
     layout.setVerticalGroup(
@@ -416,33 +463,33 @@ public class NewJFrame extends javax.swing.JFrame {
       .addGroup(layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-          .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-          .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+          .addGroup(layout.createSequentialGroup()
+            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addComponent(btnTreat))
+          .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addGap(0, 0, Short.MAX_VALUE))
+        .addGap(18, 18, 18))
     );
 
     pack();
   }// </editor-fold>//GEN-END:initComponents
 
-  private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+  private void btnAppointActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAppointActionPerformed
     try {
-      var patAppoint = (String) patientAppoint.getSelectedItem();
-      var docAppoint = (String) doctorAppoint.getSelectedItem();
+      var patientAppoint = (String) this.patientAppoint.getSelectedItem();
+      var doctorAppoint = (String) this.doctorAppoint.getSelectedItem();
       sql = (" select"
         + " (select patient_id from patient_master"
         + " where patient_name = '%s' ),"
         + " (select doctor_id from doctor_master"
         + " where doctor_name = '%s' )"
-        + " ").formatted(patAppoint, docAppoint);
-//      sql = sql.replace("34", patAppoint).replace("37", docAppoint);
-//      sql = String.format(sql, patAppoint, docAppoint);
+        + " ").formatted(patientAppoint, doctorAppoint);
 
-      System.out.println(sql);
-      execute();
+      var rs = execute();
       rs.next();
       var patientId = rs.getInt(1);
       var doctorId = rs.getInt(2);
@@ -479,29 +526,95 @@ public class NewJFrame extends javax.swing.JFrame {
       Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
     }
 
-  }//GEN-LAST:event_jButton2ActionPerformed
+  }//GEN-LAST:event_btnAppointActionPerformed
 
-  private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-//    try {
+  private void btnTreatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTreatActionPerformed
+    try {
+      var patName = patientTreat.getSelectedItem();
+      sql = ("select"
+        + " patient_id"
+        + " from patient_master"
+        + " where patient_name = '%s'").formatted(patName);
+      var rs = execute();
+      rs.next();
+      var patientId = rs.getInt(1);
 
-//      sql = "";
-//      rs = st.executeQuery(sql);
-//      execute();
-//      rs.next();
-//      var patientId = rs.getInt(1);
-//      sql = "";
-//      ps = con.prepareStatement(sql);
-//      ps.setObject(1, patientId);
-//      ps.setObject(2, doctorId);
-//      ps.setObject(3, appointId);
-//      ps.setObject(4, tDate);
-//      ps.setObject(5, diagnosis.getText());
-//      ps.setObject(6, medication.getText());
-//      ps.setObject(7, charges.getText());
-//    } catch (SQLException ex) {
-//      Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
-//    }
-  }//GEN-LAST:event_jButton1ActionPerformed
+      var docName = doctorTreat.getSelectedItem();
+      sql = ("select"
+        + " doctor_id"
+        + " from doctor_master"
+        + " where doctor_name = '%s'").formatted(docName);
+      rs = execute();
+      rs.next();
+      var doctorId = rs.getInt(1);
+
+      var appointId = appointIdTreat.getSelectedItem();
+
+      var jdt = (java.util.Date) treatDate.getValue();
+      var tDate = new Date(jdt.getTime());
+
+      sql = "insert into treatment ("
+        + " patient_id,"
+        + " doctor_id,"
+        + " appointment_id,"
+        + " treatment_date,"
+        + " diagnosis,"
+        + " medication,"
+        + " charges"
+        + " ) values (?,?,?,?,?,?,?)"
+        + " ";
+      Object[] data = {
+        patientId,
+        doctorId,
+        appointId,
+        tDate,
+        diagnosis.getText(),
+        medication.getText(),
+        charges.getText()
+      };
+      rs = execute(data);
+      rs.next();
+      var treatId = rs.getInt(1);
+
+      var bDate = tDate;
+
+      sql = "";
+      rs = execute();
+      var totalAmount = rs.getObject(1);
+
+      sql = "";
+      rs = execute();
+      var payment = rs.getObject(1);
+
+      sql = "";
+      Object[] billInfo = {
+        patientId,
+        treatId,
+        bDate,
+        totalAmount,
+        payment
+      };
+      execute(billInfo);
+
+      displayTable1();
+      displayTable2();
+    } catch (SQLException ex) {
+      Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }//GEN-LAST:event_btnTreatActionPerformed
+
+  private void patientTreatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_patientTreatActionPerformed
+
+    if (patientTreat.getSelectedIndex() != -1) {
+      fillAppoint();
+    }
+  }//GEN-LAST:event_patientTreatActionPerformed
+
+  private void doctorTreatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doctorTreatActionPerformed
+    if (doctorTreat.getSelectedIndex() != -1) {
+      fillAppoint();
+    }
+  }//GEN-LAST:event_doctorTreatActionPerformed
 
   public static void main(String args[]) {
     java.awt.EventQueue.invokeLater(new Runnable() {
@@ -514,17 +627,17 @@ public class NewJFrame extends javax.swing.JFrame {
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JSpinner appointDate;
   private javax.swing.JComboBox<String> appointIdTreat;
-  private javax.swing.ButtonGroup buttonGroup1;
+  private javax.swing.JButton btnAppoint;
+  private javax.swing.JButton btnTreat;
   private javax.swing.JTextField charges;
   private javax.swing.JTextField diagnosis;
   private javax.swing.JComboBox<String> doctorAppoint;
   private javax.swing.JComboBox<String> doctorTreat;
   private javax.swing.JTextField fee;
-  private javax.swing.JButton jButton1;
-  private javax.swing.JButton jButton2;
   private javax.swing.JLabel jLabel1;
   private javax.swing.JLabel jLabel10;
   private javax.swing.JLabel jLabel11;
+  private javax.swing.JLabel jLabel12;
   private javax.swing.JLabel jLabel13;
   private javax.swing.JLabel jLabel14;
   private javax.swing.JLabel jLabel15;
@@ -546,6 +659,7 @@ public class NewJFrame extends javax.swing.JFrame {
   private javax.swing.JComboBox<String> patientAppoint;
   private javax.swing.JComboBox<String> patientTreat;
   private javax.swing.JComboBox<String> status;
+  private javax.swing.JComboBox<String> status1;
   private javax.swing.JSpinner treatDate;
   // End of variables declaration//GEN-END:variables
 }
