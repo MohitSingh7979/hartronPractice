@@ -19,6 +19,22 @@ public class NewJFrame extends javax.swing.JFrame {
     fillDoctor();
     displayTable1();
     displayTable2();
+
+  }
+  int patientId;
+  int doctorId;
+
+  void sync() {
+    patientId = 0;
+    doctorId = 0;
+  }
+//  check out
+//  modify
+//  commit
+//  check out to another branch
+
+  void first() {
+
   }
 
   void initConnection() {
@@ -90,6 +106,7 @@ public class NewJFrame extends javax.swing.JFrame {
   }
 
   void displayTable1() {
+    sync();
     try {
       sql = " select"
         + " doctor_name,"
