@@ -10,7 +10,6 @@ import javax.swing.table.DefaultTableModel;
 public class NewJFrame extends javax.swing.JFrame {
 
   Connection con;
-  PreparedStatement ps;
   ResultSet rs;
   String sql;
 
@@ -27,6 +26,18 @@ public class NewJFrame extends javax.swing.JFrame {
     try {
       Statement st = con.createStatement();
       rs = st.executeQuery(sql);
+    } catch (SQLException ex) {
+      Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
+
+  void execute(Object[] data) {
+    try {
+      PreparedStatement ps = con.prepareStatement(sql);
+      for (int i = 0; i < data.length; i++) {
+        ps.setObject(i + 1, data[i]);
+      }
+      ps.execute();
     } catch (SQLException ex) {
       Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
     }
@@ -103,6 +114,7 @@ public class NewJFrame extends javax.swing.JFrame {
       + " on a.doctor_id = d.doctor_id"
       + "";
     fillCombo(doctorTreat);
+
   }
 
   void displayTable1() {
@@ -420,12 +432,16 @@ public class NewJFrame extends javax.swing.JFrame {
     try {
       var patAppoint = (String) patientAppoint.getSelectedItem();
       var docAppoint = (String) doctorAppoint.getSelectedItem();
-      sql = " select"
+      sql = (" select"
         + " (select patient_id from patient_master"
-        + " where patient_name = '" + patAppoint + "'),"
+        + " where patient_name = '%s' ),"
         + " (select doctor_id from doctor_master"
-        + " where doctor_name = '" + docAppoint + "')"
-        + "";
+        + " where doctor_name = '%s' )"
+        + " ").formatted(patAppoint, docAppoint);
+//      sql = sql.replace("34", patAppoint).replace("37", docAppoint);
+//      sql = String.format(sql, patAppoint, docAppoint);
+
+      System.out.println(sql);
       execute();
       rs.next();
       var patientId = rs.getInt(1);
@@ -446,14 +462,16 @@ public class NewJFrame extends javax.swing.JFrame {
         + " fee "
         + " ) values ( ?,?,?,?,?,? )"
         + " ";
-      ps = con.prepareStatement(sql);
-      ps.setInt(1, patientId);
-      ps.setInt(2, doctorId);
-      ps.setObject(3, aDate);
-      ps.setObject(4, aTime);
-      ps.setObject(5, status.getSelectedItem());
-      ps.setObject(6, fee.getText());
-      ps.execute();
+
+      Object[] data = {
+        patientId,
+        doctorId,
+        aDate,
+        aTime,
+        status.getSelectedItem(),
+        fee.getText()
+      };
+      execute(data);
 
       displayTable1();
       displayTable2();
