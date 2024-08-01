@@ -29,6 +29,14 @@ public class NewJFrame extends javax.swing.JFrame {
     patientId = 0;
     doctorId = 0;
   }
+//  check out
+//  modify
+//  commit
+//  check out to another branch
+
+  void first() {
+
+  }
 
   void initConnection() {
     try {
