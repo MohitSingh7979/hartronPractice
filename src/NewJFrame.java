@@ -1,13 +1,15 @@
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JComboBox;
+import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 public class NewJFrame extends javax.swing.JFrame {
 
   Connection con;
-  Statement st;
   PreparedStatement ps;
   ResultSet rs;
   String sql;
@@ -19,181 +21,134 @@ public class NewJFrame extends javax.swing.JFrame {
     fillDoctor();
     displayTable1();
     displayTable2();
-
   }
-  int patientId;
-  int doctorId;
 
-  void sync() {
-    patientId = 0;
-    doctorId = 0;
-  }
-//  check out
-//  modify
-//  commit
-//  check out to another branch
-
-  void first() {
-
+  void execute() {
+    try {
+      Statement st = con.createStatement();
+      rs = st.executeQuery(sql);
+    } catch (SQLException ex) {
+      Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
   }
 
   void initConnection() {
     try {
       String url = "jdbc:mysql://localhost:3306/hms";
       con = DriverManager.getConnection(url, "root", "root");
-      st = con.createStatement();
+    } catch (SQLException ex) {
+      Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
+
+  void fillCombo(JComboBox box) {
+    try {
+      execute();
+      box.removeAllItems();
+      while (rs.next()) {
+        box.addItem((String) rs.getObject(1));
+      }
+    } catch (SQLException ex) {
+      Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
+
+  void displayTable(JTable table, int col) {
+    try {
+      execute();
+      var mdl = (DefaultTableModel) table.getModel();
+      mdl.setRowCount(0);
+
+      while (rs.next()) {
+        Object[] data = new Object[col];
+        for (int i = 1; i <= col; i++) {
+          data[i] = rs.getObject(i);
+        }
+        mdl.addRow(data);
+      }
     } catch (SQLException ex) {
       Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
     }
   }
 
   void fillPatient() {
-    try {
-      sql = " select"
-        + " patient_name"
-        + " from"
-        + " patient_master"
-        + "";
-      rs = st.executeQuery(sql);
-      patientAppoint.removeAllItems();
-      while (rs.next()) {
-        patientAppoint.addItem((String) rs.getObject(1));
-      }
-      sql = " select"
-        + " patient_name"
-        + " from"
-        + " appointment a"
-        + " join patient_master p"
-        + " on a.patient_id = p.patient_id"
-        + "";
-      rs = st.executeQuery(sql);
-      patientTreat.removeAllItems();
-      while (rs.next()) {
-        patientTreat.addItem((String) rs.getObject(1));
-      }
-    } catch (SQLException ex) {
-      Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
-    }
+    sql = " select"
+      + " patient_name"
+      + " from"
+      + " patient_master"
+      + "";
+    fillCombo(patientAppoint);
+    sql = " select"
+      + " patient_name"
+      + " from"
+      + " appointment a"
+      + " join patient_master p"
+      + " on a.patient_id = p.patient_id"
+      + "";
+    fillCombo(patientTreat);
   }
 
   void fillDoctor() {
-    try {
-      sql = " select"
-        + " doctor_name"
-        + " from"
-        + " doctor_master"
-        + "";
-      rs = st.executeQuery(sql);
-      doctorAppoint.removeAllItems();
-      while (rs.next()) {
-        doctorAppoint.addItem((String) rs.getObject(1));
-      }
-      sql = " select"
-        + " doctor_name"
-        + " from"
-        + " appointment a"
-        + " join doctor_master d"
-        + " on a.doctor_id = d.doctor_id"
-        + "";
-      rs = st.executeQuery(sql);
-      doctorTreat.removeAllItems();
-      while (rs.next()) {
-        patientTreat.addItem((String) rs.getObject(1));
-      }
-    } catch (SQLException ex) {
-      Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
-    }
+    sql = " select"
+      + " doctor_name"
+      + " from"
+      + " doctor_master"
+      + "";
+    fillCombo(doctorAppoint);
+    sql = " select"
+      + " doctor_name"
+      + " from"
+      + " appointment a"
+      + " join doctor_master d"
+      + " on a.doctor_id = d.doctor_id"
+      + "";
+    fillCombo(doctorTreat);
   }
 
   void displayTable1() {
-    sync();
-    try {
-      sql = " select"
-        + " doctor_name,"
-        + " count(*),"
-        + " sum(charges)"
-        + " from"
-        + " doctor_master d"
-        + " join treatment t"
-        + " on d.doctor_id = t.doctor_id"
-        + " group by doctor_name"
-        + "";
-      rs = st.executeQuery(sql);
-      rs.next();
-//      var doctorName;
-//      var totalPatient;
-//      var totalEarning;
-
-      var mdl = (DefaultTableModel) jTable2.getModel();
-      mdl.setRowCount(0);
-      while (rs.next()) {
-        Object[] data = {
-          rs.getObject(1),
-          rs.getObject(2),
-          rs.getObject(3),};
-        mdl.addRow(data);
-      }
-    } catch (SQLException ex) {
-      Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
-    }
+    sql = " select"
+      + " doctor_name,"
+      + " count(*),"
+      + " sum(charges)"
+      + " from"
+      + " doctor_master d"
+      + " join treatment t"
+      + " on d.doctor_id = t.doctor_id"
+      + " group by doctor_name"
+      + "";
+    displayTable(jTable1, 3);
   }
 
   void displayTable2() {
-    try {
-
-      sql = " select"
-        + " patient_name,"
-        + " appointment_date,"
-        + " doctor_name,"
-        + " b.treatment_id,"
-        + " sum(total_amount)"
-        + " from"
-        + " patient_master p"
-        + " join appointment a"
-        + " on p.patient_id = a.patient_id"
-        + " join doctor_master d"
-        + " on a.doctor_id = d.doctor_id"
-        + " join treatment t"
-        + " on t.appointment_id = a.appointment_id"
-        + " join billing b"
-        + " on t.treatment_id = b.treatment_id"
-        + " group by patient_name, appointment_date, doctor_name, b.treatment_id"
-        + " ";
-
-      rs = st.executeQuery(sql);
-      rs.next();
-
-//      var patientName;
-//      var appointmentDate;
-//      var doctorName;
-//      var treatment;
-//      var totalCharges;
-      var mdl = (DefaultTableModel) jTable1.getModel();
-      mdl.setRowCount(0);
-      while (rs.next()) {
-        Object[] data = {
-          rs.getObject(1),
-          rs.getObject(2),
-          rs.getObject(3),
-          rs.getObject(4),
-          rs.getObject(5),};
-        mdl.addRow(data);
-      }
-    } catch (SQLException ex) {
-      Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
-    }
-
+    sql = " select"
+      + " patient_name,"
+      + " appointment_date,"
+      + " doctor_name,"
+      + " b.treatment_id,"
+      + " sum(total_amount)"
+      + " from"
+      + " patient_master p"
+      + " join appointment a"
+      + " on p.patient_id = a.patient_id"
+      + " join doctor_master d"
+      + " on a.doctor_id = d.doctor_id"
+      + " join treatment t"
+      + " on t.appointment_id = a.appointment_id"
+      + " join billing b"
+      + " on t.treatment_id = b.treatment_id"
+      + " group by patient_name, appointment_date, doctor_name, b.treatment_id"
+      + " ";
+    displayTable(jTable2, 5);
   }
 
   @SuppressWarnings("unchecked")
   // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
   private void initComponents() {
 
+    buttonGroup1 = new javax.swing.ButtonGroup();
     jPanel1 = new javax.swing.JPanel();
     appointDate = new javax.swing.JSpinner();
-    appointTime = new javax.swing.JSpinner();
     jLabel3 = new javax.swing.JLabel();
-    jLabel5 = new javax.swing.JLabel();
     status = new javax.swing.JComboBox<>();
     jLabel6 = new javax.swing.JLabel();
     jLabel7 = new javax.swing.JLabel();
@@ -205,13 +160,11 @@ public class NewJFrame extends javax.swing.JFrame {
     patientAppoint = new javax.swing.JComboBox<>();
     jButton2 = new javax.swing.JButton();
     jPanel2 = new javax.swing.JPanel();
-    appointDateTreat = new javax.swing.JSpinner();
     treatDate = new javax.swing.JSpinner();
     jLabel8 = new javax.swing.JLabel();
     jLabel9 = new javax.swing.JLabel();
     jLabel10 = new javax.swing.JLabel();
     jLabel11 = new javax.swing.JLabel();
-    jLabel12 = new javax.swing.JLabel();
     doctorTreat = new javax.swing.JComboBox<>();
     jLabel13 = new javax.swing.JLabel();
     diagnosis = new javax.swing.JTextField();
@@ -221,6 +174,8 @@ public class NewJFrame extends javax.swing.JFrame {
     medication = new javax.swing.JTextField();
     charges = new javax.swing.JTextField();
     jButton1 = new javax.swing.JButton();
+    jLabel16 = new javax.swing.JLabel();
+    appointIdTreat = new javax.swing.JComboBox<>();
     jScrollPane1 = new javax.swing.JScrollPane();
     jTable1 = new javax.swing.JTable();
     jScrollPane2 = new javax.swing.JScrollPane();
@@ -230,11 +185,7 @@ public class NewJFrame extends javax.swing.JFrame {
 
     appointDate.setModel(new javax.swing.SpinnerDateModel());
 
-    appointTime.setModel(new javax.swing.SpinnerDateModel());
-
     jLabel3.setText("Doctor");
-
-    jLabel5.setText("Appointment Time");
 
     status.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Unpaid", "Paid", "Partial" }));
 
@@ -261,30 +212,28 @@ public class NewJFrame extends javax.swing.JFrame {
     jPanel1.setLayout(jPanel1Layout);
     jPanel1Layout.setHorizontalGroup(
       jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+      .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
       .addGroup(jPanel1Layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addGroup(jPanel1Layout.createSequentialGroup()
-            .addComponent(jLabel1)
-            .addGap(0, 0, Short.MAX_VALUE))
           .addGroup(jPanel1Layout.createSequentialGroup()
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
               .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
               .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
               .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-              .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
               .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
               .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
               .addComponent(doctorAppoint, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
               .addComponent(appointDate)
-              .addComponent(appointTime)
               .addComponent(status, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
               .addComponent(fee)
-              .addComponent(patientAppoint, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+              .addComponent(patientAppoint, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+          .addGroup(jPanel1Layout.createSequentialGroup()
+            .addComponent(jLabel1)
+            .addGap(0, 0, Short.MAX_VALUE)))
         .addContainerGap())
-      .addComponent(jButton2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
     );
     jPanel1Layout.setVerticalGroup(
       jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -305,10 +254,6 @@ public class NewJFrame extends javax.swing.JFrame {
           .addComponent(appointDate, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-          .addComponent(jLabel5)
-          .addComponent(appointTime, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(jLabel6)
           .addComponent(status, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -318,8 +263,6 @@ public class NewJFrame extends javax.swing.JFrame {
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         .addComponent(jButton2))
     );
-
-    appointDateTreat.setModel(new javax.swing.SpinnerDateModel());
 
     treatDate.setModel(new javax.swing.SpinnerDateModel());
 
@@ -331,8 +274,6 @@ public class NewJFrame extends javax.swing.JFrame {
 
     jLabel11.setText("Medication");
 
-    jLabel12.setText("Appointment Date");
-
     jLabel13.setText("Treatment");
 
     diagnosis.setText("cancer");
@@ -341,42 +282,49 @@ public class NewJFrame extends javax.swing.JFrame {
 
     jLabel15.setText("Charges");
 
-    medication.setText("cemo");
+    medication.setText("chemo");
 
     charges.setText("100");
 
     jButton1.setText("treat");
+    jButton1.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jButton1ActionPerformed(evt);
+      }
+    });
+
+    jLabel16.setText("Appointment ID");
 
     javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
     jPanel2.setLayout(jPanel2Layout);
     jPanel2Layout.setHorizontalGroup(
       jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
+      .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+      .addGroup(jPanel2Layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addGroup(jPanel2Layout.createSequentialGroup()
-            .addComponent(jLabel13)
-            .addGap(0, 0, Short.MAX_VALUE))
           .addGroup(jPanel2Layout.createSequentialGroup()
             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
               .addComponent(jLabel14, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
               .addComponent(jLabel8, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-              .addComponent(jLabel12, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-              .addComponent(jLabel9, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addComponent(jLabel9, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 114, Short.MAX_VALUE)
               .addComponent(jLabel10, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
               .addComponent(jLabel11, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-              .addComponent(jLabel15, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+              .addComponent(jLabel15, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addComponent(jLabel16, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
               .addComponent(patientTreat, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
               .addComponent(doctorTreat, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-              .addComponent(appointDateTreat)
               .addComponent(treatDate)
               .addComponent(diagnosis)
               .addComponent(medication)
-              .addComponent(charges))))
+              .addComponent(charges)
+              .addComponent(appointIdTreat, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+          .addGroup(jPanel2Layout.createSequentialGroup()
+            .addComponent(jLabel13)
+            .addGap(0, 0, Short.MAX_VALUE)))
         .addContainerGap())
-      .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
     );
     jPanel2Layout.setVerticalGroup(
       jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -393,8 +341,8 @@ public class NewJFrame extends javax.swing.JFrame {
           .addComponent(doctorTreat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-          .addComponent(jLabel12)
-          .addComponent(appointDateTreat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+          .addComponent(jLabel16)
+          .addComponent(appointIdTreat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(jLabel9)
@@ -469,35 +417,75 @@ public class NewJFrame extends javax.swing.JFrame {
   }// </editor-fold>//GEN-END:initComponents
 
   private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-    // TODO add your handling code here:
+    try {
+      var patAppoint = (String) patientAppoint.getSelectedItem();
+      var docAppoint = (String) doctorAppoint.getSelectedItem();
+      sql = " select"
+        + " (select patient_id from patient_master"
+        + " where patient_name = '" + patAppoint + "'),"
+        + " (select doctor_id from doctor_master"
+        + " where doctor_name = '" + docAppoint + "')"
+        + "";
+      execute();
+      rs.next();
+      var patientId = rs.getInt(1);
+      var doctorId = rs.getInt(2);
+
+      var jdt = (java.util.Date) appointDate.getValue();
+      var aDate = new Date(jdt.getTime());
+
+      var sdf = new SimpleDateFormat("hh:mm:ss");
+      var aTime = sdf.format(jdt.getTime());
+
+      sql = "insert into appointment ("
+        + " patient_id,"
+        + " doctor_id,"
+        + " appointment_date,"
+        + " appointment_time,"
+        + " status,"
+        + " fee "
+        + " ) values ( ?,?,?,?,?,? )"
+        + " ";
+      ps = con.prepareStatement(sql);
+      ps.setInt(1, patientId);
+      ps.setInt(2, doctorId);
+      ps.setObject(3, aDate);
+      ps.setObject(4, aTime);
+      ps.setObject(5, status.getSelectedItem());
+      ps.setObject(6, fee.getText());
+      ps.execute();
+
+      displayTable1();
+      displayTable2();
+    } catch (SQLException ex) {
+      Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
 
   }//GEN-LAST:event_jButton2ActionPerformed
 
-  public static void main(String args[]) {
-    /* Set the Nimbus look and feel */
-    //<editor-fold defaultstate="collapsed" desc=" Look and feel setting code (optional) ">
-    /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
-         * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html
-     */
-    try {
-      for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-        if ("Nimbus".equals(info.getName())) {
-          javax.swing.UIManager.setLookAndFeel(info.getClassName());
-          break;
-        }
-      }
-    } catch (ClassNotFoundException ex) {
-      java.util.logging.Logger.getLogger(NewJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (InstantiationException ex) {
-      java.util.logging.Logger.getLogger(NewJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (IllegalAccessException ex) {
-      java.util.logging.Logger.getLogger(NewJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-      java.util.logging.Logger.getLogger(NewJFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-    }
-    //</editor-fold>
+  private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+//    try {
 
-    /* Create and display the form */
+//      sql = "";
+//      rs = st.executeQuery(sql);
+//      execute();
+//      rs.next();
+//      var patientId = rs.getInt(1);
+//      sql = "";
+//      ps = con.prepareStatement(sql);
+//      ps.setObject(1, patientId);
+//      ps.setObject(2, doctorId);
+//      ps.setObject(3, appointId);
+//      ps.setObject(4, tDate);
+//      ps.setObject(5, diagnosis.getText());
+//      ps.setObject(6, medication.getText());
+//      ps.setObject(7, charges.getText());
+//    } catch (SQLException ex) {
+//      Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
+//    }
+  }//GEN-LAST:event_jButton1ActionPerformed
+
+  public static void main(String args[]) {
     java.awt.EventQueue.invokeLater(new Runnable() {
       public void run() {
         new NewJFrame().setVisible(true);
@@ -507,8 +495,8 @@ public class NewJFrame extends javax.swing.JFrame {
 
   // Variables declaration - do not modify//GEN-BEGIN:variables
   private javax.swing.JSpinner appointDate;
-  private javax.swing.JSpinner appointDateTreat;
-  private javax.swing.JSpinner appointTime;
+  private javax.swing.JComboBox<String> appointIdTreat;
+  private javax.swing.ButtonGroup buttonGroup1;
   private javax.swing.JTextField charges;
   private javax.swing.JTextField diagnosis;
   private javax.swing.JComboBox<String> doctorAppoint;
@@ -519,14 +507,13 @@ public class NewJFrame extends javax.swing.JFrame {
   private javax.swing.JLabel jLabel1;
   private javax.swing.JLabel jLabel10;
   private javax.swing.JLabel jLabel11;
-  private javax.swing.JLabel jLabel12;
   private javax.swing.JLabel jLabel13;
   private javax.swing.JLabel jLabel14;
   private javax.swing.JLabel jLabel15;
+  private javax.swing.JLabel jLabel16;
   private javax.swing.JLabel jLabel2;
   private javax.swing.JLabel jLabel3;
   private javax.swing.JLabel jLabel4;
-  private javax.swing.JLabel jLabel5;
   private javax.swing.JLabel jLabel6;
   private javax.swing.JLabel jLabel7;
   private javax.swing.JLabel jLabel8;
