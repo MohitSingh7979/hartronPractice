@@ -19,7 +19,16 @@ public class NewJFrame extends javax.swing.JFrame {
     fillDoctor();
     displayTable1();
     displayTable2();
-//    fillAppoint();
+  }
+
+  void initConnection() {
+    try {
+      String url = "jdbc:mysql://localhost:3306/hms";
+      con = DriverManager.getConnection(url, "root", "root");
+
+    } catch (SQLException ex) {
+      Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
   }
 
   ResultSet execute() {
@@ -27,7 +36,6 @@ public class NewJFrame extends javax.swing.JFrame {
     try {
       Statement st = con.createStatement();
       rs = st.executeQuery(sql);
-
     } catch (SQLException ex) {
       Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
     }
@@ -37,7 +45,7 @@ public class NewJFrame extends javax.swing.JFrame {
   ResultSet execute(Object[] data) {
     ResultSet rs = null;
     try {
-      PreparedStatement ps = con.prepareStatement(sql);
+      PreparedStatement ps = con.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
       for (int i = 0; i < data.length; i++) {
         ps.setObject(i + 1, data[i]);
       }
@@ -50,15 +58,6 @@ public class NewJFrame extends javax.swing.JFrame {
     return rs;
   }
 
-  void initConnection() {
-    try {
-      String url = "jdbc:mysql://localhost:3306/hms";
-      con = DriverManager.getConnection(url, "root", "root");
-    } catch (SQLException ex) {
-      Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
-    }
-  }
-
   void fillCombo(JComboBox box) {
     try {
       var rs = execute();
@@ -66,17 +65,18 @@ public class NewJFrame extends javax.swing.JFrame {
       while (rs.next()) {
         box.addItem(rs.getString(1));
       }
+
     } catch (SQLException ex) {
       Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
     }
   }
 
-  void displayTable(JTable table, int col) {
+  void displayTable(JTable table) {
     try {
       var rs = execute();
       var mdl = (DefaultTableModel) table.getModel();
       mdl.setRowCount(0);
-
+      var col = mdl.getColumnCount();
       while (rs.next()) {
         Object[] data = new Object[col];
         for (int i = 0; i < col; i++) {
@@ -84,6 +84,7 @@ public class NewJFrame extends javax.swing.JFrame {
         }
         mdl.addRow(data);
       }
+
     } catch (SQLException ex) {
       Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
     }
@@ -132,7 +133,7 @@ public class NewJFrame extends javax.swing.JFrame {
       + " on a.doctor_id = d.doctor_id"
       + " join patient_master p"
       + " on a.patient_id = p.patient_id"
-      + " where doctor_name = '%s' and patient_name = '%s'  ").formatted(docName, patName);
+      + " where doctor_name = '%s' and patient_name = '%s'").formatted(docName, patName);
     fillCombo(appointIdTreat);
   }
 
@@ -147,7 +148,7 @@ public class NewJFrame extends javax.swing.JFrame {
       + " on d.doctor_id = t.doctor_id"
       + " group by doctor_name"
       + "";
-    displayTable(jTable1, 3);
+    displayTable(jTable1);
   }
 
   void displayTable2() {
@@ -169,49 +170,49 @@ public class NewJFrame extends javax.swing.JFrame {
       + " on t.treatment_id = b.treatment_id"
       + " group by patient_name, appointment_date, doctor_name, b.treatment_id"
       + " ";
-    displayTable(jTable2, 5);
+    displayTable(jTable2);
   }
 
   @SuppressWarnings("unchecked")
   // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
   private void initComponents() {
 
-    jPanel1 = new javax.swing.JPanel();
+    javax.swing.JPanel jPanel1 = new javax.swing.JPanel();
     appointDate = new javax.swing.JSpinner();
-    jLabel3 = new javax.swing.JLabel();
-    jLabel7 = new javax.swing.JLabel();
-    jLabel4 = new javax.swing.JLabel();
+    javax.swing.JLabel jLabel3 = new javax.swing.JLabel();
+    javax.swing.JLabel jLabel7 = new javax.swing.JLabel();
+    javax.swing.JLabel jLabel4 = new javax.swing.JLabel();
     doctorAppoint = new javax.swing.JComboBox<>();
-    jLabel1 = new javax.swing.JLabel();
+    javax.swing.JLabel jLabel1 = new javax.swing.JLabel();
     fee = new javax.swing.JTextField();
-    jLabel2 = new javax.swing.JLabel();
+    javax.swing.JLabel jLabel2 = new javax.swing.JLabel();
     patientAppoint = new javax.swing.JComboBox<>();
     btnAppoint = new javax.swing.JButton();
-    status1 = new javax.swing.JComboBox<>();
-    jLabel12 = new javax.swing.JLabel();
-    jPanel2 = new javax.swing.JPanel();
+    statusAppoint = new javax.swing.JComboBox<>();
+    javax.swing.JLabel jLabel12 = new javax.swing.JLabel();
+    javax.swing.JPanel jPanel2 = new javax.swing.JPanel();
     treatDate = new javax.swing.JSpinner();
-    jLabel8 = new javax.swing.JLabel();
-    jLabel9 = new javax.swing.JLabel();
-    jLabel10 = new javax.swing.JLabel();
-    jLabel11 = new javax.swing.JLabel();
+    javax.swing.JLabel jLabel8 = new javax.swing.JLabel();
+    javax.swing.JLabel jLabel9 = new javax.swing.JLabel();
+    javax.swing.JLabel jLabel10 = new javax.swing.JLabel();
+    javax.swing.JLabel jLabel11 = new javax.swing.JLabel();
     doctorTreat = new javax.swing.JComboBox<>();
-    jLabel13 = new javax.swing.JLabel();
+    javax.swing.JLabel jLabel13 = new javax.swing.JLabel();
     diagnosis = new javax.swing.JTextField();
-    jLabel14 = new javax.swing.JLabel();
+    javax.swing.JLabel jLabel14 = new javax.swing.JLabel();
     patientTreat = new javax.swing.JComboBox<>();
-    jLabel15 = new javax.swing.JLabel();
+    javax.swing.JLabel jLabel15 = new javax.swing.JLabel();
     medication = new javax.swing.JTextField();
     charges = new javax.swing.JTextField();
-    jLabel16 = new javax.swing.JLabel();
+    javax.swing.JLabel jLabel16 = new javax.swing.JLabel();
     appointIdTreat = new javax.swing.JComboBox<>();
-    jLabel6 = new javax.swing.JLabel();
-    status = new javax.swing.JComboBox<>();
+    javax.swing.JLabel jLabel6 = new javax.swing.JLabel();
+    statusTreat = new javax.swing.JComboBox<>();
+    btnTreat = new javax.swing.JButton();
     jScrollPane1 = new javax.swing.JScrollPane();
     jTable1 = new javax.swing.JTable();
     jScrollPane2 = new javax.swing.JScrollPane();
     jTable2 = new javax.swing.JTable();
-    btnTreat = new javax.swing.JButton();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -223,7 +224,10 @@ public class NewJFrame extends javax.swing.JFrame {
 
     jLabel4.setText("Appointment Date");
 
+    jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+    jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
     jLabel1.setText("Appointment");
+    jLabel1.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
     fee.setText("200");
 
@@ -236,7 +240,7 @@ public class NewJFrame extends javax.swing.JFrame {
       }
     });
 
-    status1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pending", "Confirmed", "Cancelled" }));
+    statusAppoint.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pending", "Confirmed", "Cancelled" }));
 
     jLabel12.setText("Status");
 
@@ -244,27 +248,27 @@ public class NewJFrame extends javax.swing.JFrame {
     jPanel1.setLayout(jPanel1Layout);
     jPanel1Layout.setHorizontalGroup(
       jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-      .addComponent(btnAppoint, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
       .addGroup(jPanel1Layout.createSequentialGroup()
-        .addContainerGap()
         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(btnAppoint, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addGroup(jPanel1Layout.createSequentialGroup()
-            .addComponent(jLabel1)
-            .addGap(0, 0, Short.MAX_VALUE))
-          .addGroup(jPanel1Layout.createSequentialGroup()
+            .addContainerGap()
             .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-              .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-              .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-              .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-              .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-              .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-              .addComponent(status1, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-              .addComponent(doctorAppoint, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-              .addComponent(appointDate)
-              .addComponent(fee)
-              .addComponent(patientAppoint, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+              .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+              .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                  .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                  .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                  .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                  .addComponent(jLabel7, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                  .addComponent(jLabel12, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                  .addComponent(statusAppoint, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                  .addComponent(doctorAppoint, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                  .addComponent(appointDate)
+                  .addComponent(fee)
+                  .addComponent(patientAppoint, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))))
         .addContainerGap())
     );
     jPanel1Layout.setVerticalGroup(
@@ -287,12 +291,12 @@ public class NewJFrame extends javax.swing.JFrame {
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(jLabel12)
-          .addComponent(status1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+          .addComponent(statusAppoint, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(jLabel7)
           .addComponent(fee, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 134, Short.MAX_VALUE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         .addComponent(btnAppoint))
     );
 
@@ -312,7 +316,10 @@ public class NewJFrame extends javax.swing.JFrame {
       }
     });
 
+    jLabel13.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+    jLabel13.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
     jLabel13.setText("Treatment");
+    jLabel13.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.RAISED));
 
     diagnosis.setText("cancer");
 
@@ -334,7 +341,14 @@ public class NewJFrame extends javax.swing.JFrame {
 
     jLabel6.setText("Status");
 
-    status.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Unpaid", "Paid", "Partial" }));
+    statusTreat.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Unpaid", "Paid", "Partial" }));
+
+    btnTreat.setText("treat");
+    btnTreat.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        btnTreatActionPerformed(evt);
+      }
+    });
 
     javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
     jPanel2.setLayout(jPanel2Layout);
@@ -343,6 +357,8 @@ public class NewJFrame extends javax.swing.JFrame {
       .addGroup(jPanel2Layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+          .addComponent(jLabel13, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(btnTreat, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
           .addGroup(jPanel2Layout.createSequentialGroup()
             .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
               .addComponent(jLabel14, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -361,13 +377,10 @@ public class NewJFrame extends javax.swing.JFrame {
               .addComponent(medication)
               .addComponent(charges)
               .addComponent(appointIdTreat, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-          .addGroup(jPanel2Layout.createSequentialGroup()
-            .addComponent(jLabel13)
-            .addGap(0, 0, Short.MAX_VALUE))
           .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
             .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
             .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(status, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+            .addComponent(statusTreat, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
         .addContainerGap())
     );
     jPanel2Layout.setVerticalGroup(
@@ -406,8 +419,9 @@ public class NewJFrame extends javax.swing.JFrame {
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(jLabel6)
-          .addComponent(status, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addContainerGap(16, Short.MAX_VALUE))
+          .addComponent(statusTreat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 38, Short.MAX_VALUE)
+        .addComponent(btnTreat))
     );
 
     jTable1.setModel(new javax.swing.table.DefaultTableModel(
@@ -430,45 +444,27 @@ public class NewJFrame extends javax.swing.JFrame {
     ));
     jScrollPane2.setViewportView(jTable2);
 
-    btnTreat.setText("treat");
-    btnTreat.addActionListener(new java.awt.event.ActionListener() {
-      public void actionPerformed(java.awt.event.ActionEvent evt) {
-        btnTreatActionPerformed(evt);
-      }
-    });
-
     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(layout.createSequentialGroup()
-        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-          .addComponent(jScrollPane1, javax.swing.GroupLayout.Alignment.TRAILING)
-          .addGroup(layout.createSequentialGroup()
-            .addContainerGap()
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-              .addGroup(layout.createSequentialGroup()
-                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                  .addGroup(layout.createSequentialGroup()
-                    .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(0, 0, Short.MAX_VALUE))
-                  .addComponent(btnTreat, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
-              .addComponent(jScrollPane2, javax.swing.GroupLayout.Alignment.TRAILING))))
-        .addContainerGap())
+        .addContainerGap()
+        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+        .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+        .addContainerGap(16, Short.MAX_VALUE))
+      .addComponent(jScrollPane1)
+      .addComponent(jScrollPane2)
     );
     layout.setVerticalGroup(
       layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
       .addGroup(layout.createSequentialGroup()
         .addContainerGap()
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-          .addGroup(layout.createSequentialGroup()
-            .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(btnTreat))
-          .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 33, Short.MAX_VALUE)
+          .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+          .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 37, Short.MAX_VALUE)
         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE)
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 208, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -515,13 +511,16 @@ public class NewJFrame extends javax.swing.JFrame {
         doctorId,
         aDate,
         aTime,
-        status.getSelectedItem(),
+        statusAppoint.getSelectedItem(),
         fee.getText()
       };
       execute(data);
 
       displayTable1();
       displayTable2();
+      fillPatient();
+      fillDoctor();
+      fillAppoint();
     } catch (SQLException ex) {
       Logger.getLogger(NewJFrame.class.getName()).log(Level.SEVERE, null, ex);
     }
@@ -573,27 +572,35 @@ public class NewJFrame extends javax.swing.JFrame {
         charges.getText()
       };
       rs = execute(data);
+
       rs.next();
       var treatId = rs.getInt(1);
-
+      System.out.println(treatId);
       var bDate = tDate;
 
-      sql = "";
+      var charges = this.charges.getText();
+      var payStatusBill = statusTreat.getSelectedItem();
+      sql = (" select"
+        + " fee + %s"
+        + " from"
+        + " appointment a"
+        + " where appointment_id = %s").formatted(charges, appointId);
       rs = execute();
+      rs.next();
       var totalAmount = rs.getObject(1);
-
-      sql = "";
-      rs = execute();
-      var payment = rs.getObject(1);
-
-      sql = "";
+      sql = "insert into billing("
+        + " patient_id,"
+        + " treatment_id,"
+        + " bill_date,"
+        + " total_amount,"
+        + " payment_status"
+        + " ) values (?,?,?,?,?)";
       Object[] billInfo = {
         patientId,
         treatId,
         bDate,
         totalAmount,
-        payment
-      };
+        payStatusBill,};
       execute(billInfo);
 
       displayTable1();
@@ -611,6 +618,7 @@ public class NewJFrame extends javax.swing.JFrame {
   }//GEN-LAST:event_patientTreatActionPerformed
 
   private void doctorTreatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_doctorTreatActionPerformed
+
     if (doctorTreat.getSelectedIndex() != -1) {
       fillAppoint();
     }
@@ -634,23 +642,6 @@ public class NewJFrame extends javax.swing.JFrame {
   private javax.swing.JComboBox<String> doctorAppoint;
   private javax.swing.JComboBox<String> doctorTreat;
   private javax.swing.JTextField fee;
-  private javax.swing.JLabel jLabel1;
-  private javax.swing.JLabel jLabel10;
-  private javax.swing.JLabel jLabel11;
-  private javax.swing.JLabel jLabel12;
-  private javax.swing.JLabel jLabel13;
-  private javax.swing.JLabel jLabel14;
-  private javax.swing.JLabel jLabel15;
-  private javax.swing.JLabel jLabel16;
-  private javax.swing.JLabel jLabel2;
-  private javax.swing.JLabel jLabel3;
-  private javax.swing.JLabel jLabel4;
-  private javax.swing.JLabel jLabel6;
-  private javax.swing.JLabel jLabel7;
-  private javax.swing.JLabel jLabel8;
-  private javax.swing.JLabel jLabel9;
-  private javax.swing.JPanel jPanel1;
-  private javax.swing.JPanel jPanel2;
   private javax.swing.JScrollPane jScrollPane1;
   private javax.swing.JScrollPane jScrollPane2;
   private javax.swing.JTable jTable1;
@@ -658,8 +649,8 @@ public class NewJFrame extends javax.swing.JFrame {
   private javax.swing.JTextField medication;
   private javax.swing.JComboBox<String> patientAppoint;
   private javax.swing.JComboBox<String> patientTreat;
-  private javax.swing.JComboBox<String> status;
-  private javax.swing.JComboBox<String> status1;
+  private javax.swing.JComboBox<String> statusAppoint;
+  private javax.swing.JComboBox<String> statusTreat;
   private javax.swing.JSpinner treatDate;
   // End of variables declaration//GEN-END:variables
 }
