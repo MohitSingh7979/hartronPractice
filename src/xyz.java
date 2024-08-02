@@ -48,13 +48,12 @@ public class xyz extends javax.swing.JFrame {
     return rs;
   }
 
-  ResultSet rs;
-
   void fillCombo(JComboBox box) {
     try {
-      rs = execute();
+      var rs = execute();
+      box.removeAllItems();
       while (rs.next()) {
-        box.addItem(rs.getString());
+        box.addItem(rs.getString(1));
       }
     } catch (SQLException ex) {
       Logger.getLogger(xyz.class.getName()).log(Level.SEVERE, null, ex);
@@ -63,13 +62,20 @@ public class xyz extends javax.swing.JFrame {
 
   void displayTable(JTable table) {
 
-    var model = (DefaultTableModel) jTable1.getModel();
-    model.setRowCount(0);
-    var col = model.getColumnCount();
-    while (rs.next()) {
-      for (int i = 0; i < col; i++) {
-        data[i] = rs.getObject[i + 1];
+    try {
+      var rs = execute();
+      var model = (DefaultTableModel) table.getModel();
+      model.setRowCount(0);
+      var col = model.getColumnCount();
+      while (rs.next()) {
+        Object[] data = new Object[col];
+        for (int i = 0; i < col; i++) {
+          data[i] = rs.getObject(i + 1);
+        }
+        model.addRow(data);
       }
+    } catch (SQLException ex) {
+      Logger.getLogger(xyz.class.getName()).log(Level.SEVERE, null, ex);
     }
 
   }
