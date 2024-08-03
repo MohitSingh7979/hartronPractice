@@ -99,18 +99,18 @@ public class MainLibFrame extends javax.swing.JFrame {
     returnDate = new javax.swing.JSpinner();
     amount = new javax.swing.JTextField();
     statusPayment = new javax.swing.JComboBox<>();
-    jScrollPane1 = new javax.swing.JScrollPane();
+    javax.swing.JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
     table1 = new javax.swing.JTable();
-    jScrollPane2 = new javax.swing.JScrollPane();
+    javax.swing.JScrollPane jScrollPane2 = new javax.swing.JScrollPane();
     table2 = new javax.swing.JTable();
     dueDate = new javax.swing.JSpinner();
     javax.swing.JLabel jLabel5 = new javax.swing.JLabel();
     btnFine = new javax.swing.JButton();
-    jLabel6 = new javax.swing.JLabel();
+    javax.swing.JLabel jLabel6 = new javax.swing.JLabel();
     fine = new javax.swing.JComboBox<>();
-    jLabel7 = new javax.swing.JLabel();
+    javax.swing.JLabel jLabel7 = new javax.swing.JLabel();
     fineAmount = new javax.swing.JComboBox<>();
-    jLabel12 = new javax.swing.JLabel();
+    javax.swing.JLabel jLabel12 = new javax.swing.JLabel();
     paying = new javax.swing.JSpinner();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -398,11 +398,6 @@ public class MainLibFrame extends javax.swing.JFrame {
   private javax.swing.JSpinner dueDate;
   private javax.swing.JComboBox<String> fine;
   private javax.swing.JComboBox<String> fineAmount;
-  private javax.swing.JLabel jLabel12;
-  private javax.swing.JLabel jLabel6;
-  private javax.swing.JLabel jLabel7;
-  private javax.swing.JScrollPane jScrollPane1;
-  private javax.swing.JScrollPane jScrollPane2;
   private javax.swing.JComboBox<String> member;
   private javax.swing.JSpinner paying;
   private javax.swing.JSpinner returnDate;
@@ -417,7 +412,7 @@ public class MainLibFrame extends javax.swing.JFrame {
       String url = "jdbc:mysql://localhost:3306/library_manages";
       String usr = "root";
       String psw = "root";
-      con = DriverManager.getConnection(url, usr, psw);
+      this.con = DriverManager.getConnection(url, usr, psw);
     } catch (SQLException ex) {
       Logger.getLogger(MainLibFrame.class.getName()).log(Level.SEVERE, null, ex);
     }
