@@ -67,11 +67,10 @@ public class MainLibFrame extends javax.swing.JFrame {
     ResultSet rs = null;
     try {
       PreparedStatement ps = con.prepareStatement(sql);
-      while (rs.next()) {
-        for (int i = 0; i < obj.length; i++) {
-          obj[i] = rs.getObject(i + 1);
-        }
+      for (int i = 0; i < obj.length; i++) {
+        ps.setObject(i + 1, obj[i]);
       }
+      ps.execute();
     } catch (SQLException ex) {
       Logger.getLogger(MainLibFrame.class.getName()).log(Level.SEVERE, null, ex);
     }
@@ -313,11 +312,11 @@ public class MainLibFrame extends javax.swing.JFrame {
               .addGroup(layout.createSequentialGroup()
                 .addComponent(amount, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(statusPayment, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-            .addComponent(btnReturn)))
+                .addComponent(statusPayment, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))))
         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-        .addComponent(btnBorrow)
+        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+          .addComponent(btnBorrow)
+          .addComponent(btnReturn))
         .addGap(33, 33, 33)
         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
           .addComponent(btnFine)
@@ -339,13 +338,19 @@ public class MainLibFrame extends javax.swing.JFrame {
 
   private void btnBorrowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBorrowActionPerformed
 
-    var bookId = findFromSQL("book_id", "book_master", "book_name", book);
+
+    var bookId = findFromSQL("book_id", "book_master", "title", book);
     var memberId = findFromSQL("member_id", "member_master", "member_name", member);
 
     var borrowingDate = getDate(date);
     var dDate = getDate(dueDate);
 
-    sql = ("SELECT book_id FROM library_manages.book_master where title = '%s';").formatted();
+    sql = "insert into borrowing ("
+      + "  book_id,"
+      + "  member_id,"
+      + "  borrowing_date,"
+      + "  due_date"
+      + "  ) values (?,?,?,?);";
 
     Object[] data = {
       bookId,
@@ -354,6 +359,8 @@ public class MainLibFrame extends javax.swing.JFrame {
       dDate, //      returnDate,
     //      status
     };
+    exe(data);
+
   }//GEN-LAST:event_btnBorrowActionPerformed
 
   private void btnFineActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnFineActionPerformed
@@ -368,7 +375,7 @@ public class MainLibFrame extends javax.swing.JFrame {
     int id = 0;
     try {
       var item = equalToComboBox.getSelectedItem();
-      sql = ("SELECT '%s' FROM '%s' where '%s' = '%s';").formatted(select, from, where, item);
+      sql = ("SELECT %s FROM %s where %s = '%s';").formatted(select, from, where, item);
       var rs = exe();
       rs.next();
       id = rs.getInt(1);
