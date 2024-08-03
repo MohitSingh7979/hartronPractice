@@ -338,9 +338,9 @@ public class MainLibFrame extends javax.swing.JFrame {
 
   private void btnBorrowActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBorrowActionPerformed
 
-
     var bookId = findFromSQL("book_id", "book_master", "title", book);
     var memberId = findFromSQL("member_id", "member_master", "member_name", member);
+    var staffId = findFromSQL("staff_id", "staff_member", "staff_name", staff);
 
     var borrowingDate = getDate(date);
     var dDate = getDate(dueDate);
@@ -348,13 +348,15 @@ public class MainLibFrame extends javax.swing.JFrame {
     sql = "insert into borrowing ("
       + "  book_id,"
       + "  member_id,"
+      + "  staff_id,"
       + "  borrowing_date,"
       + "  due_date"
-      + "  ) values (?,?,?,?);";
+      + "  ) values (?,?,?,?,?);";
 
     Object[] data = {
       bookId,
       memberId,
+      staffId,
       borrowingDate,
       dDate, //      returnDate,
     //      status
