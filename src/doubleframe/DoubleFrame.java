@@ -8,12 +8,9 @@ public class DoubleFrame {
 
   static void m() {
     Something s = new Something();
-    render(s);
-  }
-
-  private static void render(Something s) {
     System.out.println(s);
   }
+
 
   private static class Something {
 
