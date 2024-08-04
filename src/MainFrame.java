@@ -113,10 +113,11 @@ public class MainFrame extends javax.swing.JFrame {
       model.setRowCount(0);
       int col = model.getColumnCount();
       while (rs.next()) {
+        var data = new Object[col];
         for (int i = 0; i < col; i++) {
-          Object[] data = null;
           data[i] = rs.getObject(i + 1);
         }
+        model.addRow(data);
       }
     } catch (SQLException ex) {
       Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
