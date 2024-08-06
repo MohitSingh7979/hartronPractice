@@ -24,10 +24,28 @@ public class MainFrame extends javax.swing.JFrame {
     initComponents();
     initcon();
     fillsub();
-    findsid();
-
     displaytable1();
 
+    displaytable2();
+
+  }
+
+  public void displaytable2() {
+    try {
+      String sql = "select s.subject_name ,count(*) from subject_master s join candidate_master c on s.subject_id = c.subject_id group by s.subject_name;";
+      var rs = exe(sql);
+      DefaultTableModel model = (DefaultTableModel) table2.getModel();
+      model.setRowCount(0);
+      int col = model.getColumnCount();
+      while (rs.next()) {
+        Object[] data = {
+          rs.getObject(1),
+          rs.getObject(2),};
+        model.addRow(data);
+      }
+    } catch (SQLException ex) {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
   }
 
   public void displaytable1() {
@@ -271,6 +289,8 @@ public class MainFrame extends javax.swing.JFrame {
 
     String sql = "insert into hartron_test.candidate_master (candidate_id, subject_id, candidate_name, test_marks_1, test_marks_2) values (?,?,?,?,?)";
     exe(sql, data);
+    displaytable1();
+    displaytable2();
 
   }//GEN-LAST:event_jButton1ActionPerformed
 
@@ -284,6 +304,7 @@ public class MainFrame extends javax.swing.JFrame {
     } catch (SQLException ex) {
       Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
     }
+
   }
 
   /**
