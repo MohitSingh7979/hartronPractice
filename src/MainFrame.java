@@ -226,16 +226,30 @@ public class MainFrame extends javax.swing.JFrame {
     } else {
       isPass = "Fail";
     }
+
     Object[] data = {
       cid.getText(),
       findsid(),
       cname.getText(),
       t1,
-      t2,
-      isPass};
+      t2};
 
-    con.prepareStatement(isPass)
+    String sql = "insert into hartron_test.candidate_master (candidate_id, subject_name, candidate_name, test_marks_1, test_marks_2) values (?,?,?,?,?)";
+    exe(sql, data);
+
   }//GEN-LAST:event_jButton1ActionPerformed
+
+  public void exe(String sql, Object[] data) {
+    try {
+      PreparedStatement ps = con.prepareStatement(sql);
+      for (int i = 0; i < data.length; i++) {
+        ps.setObject(i + 1, data[i]);
+      }
+      ps.execute();
+    } catch (SQLException ex) {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
 
   /**
    * @param args the command line arguments
