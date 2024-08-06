@@ -38,12 +38,12 @@
                                   <Component id="jLabel4" alignment="0" min="-2" max="-2" attributes="0"/>
                               </Group>
                               <EmptySpace min="-2" pref="102" max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="1" attributes="0">
-                                  <Component id="test2marks" alignment="1" min="-2" pref="100" max="-2" attributes="0"/>
-                                  <Component id="test1marks" alignment="1" min="-2" pref="100" max="-2" attributes="0"/>
-                                  <Component id="cname" alignment="1" min="-2" pref="100" max="-2" attributes="0"/>
-                                  <Component id="sname" alignment="1" min="-2" pref="100" max="-2" attributes="0"/>
-                                  <Component id="cid" alignment="1" min="-2" pref="100" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="1" max="-2" attributes="0">
+                                  <Component id="cname" alignment="0" pref="100" max="32767" attributes="0"/>
+                                  <Component id="sname" alignment="0" pref="100" max="32767" attributes="0"/>
+                                  <Component id="cid" alignment="0" pref="100" max="32767" attributes="0"/>
+                                  <Component id="test1marks" alignment="0" max="32767" attributes="0"/>
+                                  <Component id="test2marks" alignment="0" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                           <Group type="102" alignment="0" attributes="0">
@@ -141,24 +141,13 @@
         <Property name="text" type="java.lang.String" value="Test 2 marks"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JSpinner" name="test1marks">
-      <Properties>
-        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-          <SpinnerModel initial="0" maximum="50" minimum="0" numberType="java.lang.Integer" stepSize="1" type="number"/>
-        </Property>
-      </Properties>
-    </Component>
-    <Component class="javax.swing.JSpinner" name="test2marks">
-      <Properties>
-        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-          <SpinnerModel initial="0" maximum="50" minimum="0" numberType="java.lang.Integer" stepSize="1" type="number"/>
-        </Property>
-      </Properties>
-    </Component>
     <Component class="javax.swing.JButton" name="jButton1">
       <Properties>
         <Property name="text" type="java.lang.String" value="Submit"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton1ActionPerformed"/>
+      </Events>
     </Component>
     <Container class="javax.swing.JScrollPane" name="jScrollPane1">
       <AuxValues>
@@ -202,5 +191,15 @@
         </Component>
       </SubComponents>
     </Container>
+    <Component class="javax.swing.JTextField" name="test1marks">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="0"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="test2marks">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="0"/>
+      </Properties>
+    </Component>
   </SubComponents>
 </Form>

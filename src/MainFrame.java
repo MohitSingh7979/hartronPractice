@@ -3,9 +3,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 
+import java.awt.HeadlessException;
 import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -20,6 +22,14 @@ public class MainFrame extends javax.swing.JFrame {
     initComponents();
     initcon();
 
+  }
+
+  public void checkMarks() throws HeadlessException {
+    double t1 = Double.valueOf(test1marks.getText());
+    double t2 = Double.valueOf(test2marks.getText());
+    if (t1 > 50 || t2 > 50) {
+      JOptionPane.showMessageDialog(rootPane, "marks must be below 50");
+    }
   }
 
   public void initcon() {
@@ -48,13 +58,13 @@ public class MainFrame extends javax.swing.JFrame {
     sname = new javax.swing.JComboBox<>();
     jLabel4 = new javax.swing.JLabel();
     jLabel5 = new javax.swing.JLabel();
-    test1marks = new javax.swing.JSpinner();
-    test2marks = new javax.swing.JSpinner();
     jButton1 = new javax.swing.JButton();
     jScrollPane1 = new javax.swing.JScrollPane();
     table1 = new javax.swing.JTable();
     jScrollPane2 = new javax.swing.JScrollPane();
     table2 = new javax.swing.JTable();
+    test1marks = new javax.swing.JTextField();
+    test2marks = new javax.swing.JTextField();
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -68,11 +78,12 @@ public class MainFrame extends javax.swing.JFrame {
 
     jLabel5.setText("Test 2 marks");
 
-    test1marks.setModel(new javax.swing.SpinnerNumberModel(0, 0, 50, 1));
-
-    test2marks.setModel(new javax.swing.SpinnerNumberModel(0, 0, 50, 1));
-
     jButton1.setText("Submit");
+    jButton1.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jButton1ActionPerformed(evt);
+      }
+    });
 
     table1.setModel(new javax.swing.table.DefaultTableModel(
       new Object [][] {
@@ -94,6 +105,10 @@ public class MainFrame extends javax.swing.JFrame {
     ));
     jScrollPane2.setViewportView(table2);
 
+    test1marks.setText("0");
+
+    test2marks.setText("0");
+
     javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
     getContentPane().setLayout(layout);
     layout.setHorizontalGroup(
@@ -112,12 +127,12 @@ public class MainFrame extends javax.swing.JFrame {
                   .addComponent(jLabel5, javax.swing.GroupLayout.Alignment.LEADING)
                   .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.LEADING))
                 .addGap(102, 102, 102)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                  .addComponent(test2marks, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                  .addComponent(test1marks, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                  .addComponent(cname, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                  .addComponent(sname, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)
-                  .addComponent(cid, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                  .addComponent(cname, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
+                  .addComponent(sname, javax.swing.GroupLayout.Alignment.LEADING, 0, 100, Short.MAX_VALUE)
+                  .addComponent(cid, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 100, Short.MAX_VALUE)
+                  .addComponent(test1marks, javax.swing.GroupLayout.Alignment.LEADING)
+                  .addComponent(test2marks, javax.swing.GroupLayout.Alignment.LEADING)))
               .addGroup(layout.createSequentialGroup()
                 .addGap(72, 72, 72)
                 .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 100, javax.swing.GroupLayout.PREFERRED_SIZE)))
@@ -160,6 +175,12 @@ public class MainFrame extends javax.swing.JFrame {
 
     pack();
   }// </editor-fold>//GEN-END:initComponents
+
+  private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    // TODO add your handling code here:
+    checkMarks();
+
+  }//GEN-LAST:event_jButton1ActionPerformed
 
   /**
    * @param args the command line arguments
@@ -210,7 +231,7 @@ public class MainFrame extends javax.swing.JFrame {
   private javax.swing.JComboBox<String> sname;
   private javax.swing.JTable table1;
   private javax.swing.JTable table2;
-  private javax.swing.JSpinner test1marks;
-  private javax.swing.JSpinner test2marks;
+  private javax.swing.JTextField test1marks;
+  private javax.swing.JTextField test2marks;
   // End of variables declaration//GEN-END:variables
 }
