@@ -23,21 +23,42 @@ public class MainFrame extends javax.swing.JFrame {
     initComponents();
     initcon();
     fillsub();
+    findsid();
 
+  }
+
+  public int findsid() {
+    int sid = 0;
+
+    try {
+      var sn = sname.getSelectedItem();
+      String sql = "SELECT s.subject_id FROM hartron_test.subject_master s where s.subject_name = '" + sn + "';";
+      var rs = exe(sql);
+      rs.next();
+      sid = rs.getInt(1);
+    } catch (SQLException ex) {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    return sid;
   }
 
   public void fillsub() {
     try {
       var sql = "SELECT s.subject_name FROM hartron_test.subject_master s;";
       sname.removeAllItems();
-      Statement st = con.createStatement();
-      ResultSet rs = st.executeQuery(sql);
+      ResultSet rs = exe(sql);
       while (rs.next()) {
         sname.addItem(rs.getString(1));
       }
     } catch (SQLException ex) {
       Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
     }
+  }
+
+  public ResultSet exe(String sql) throws SQLException {
+    Statement st = con.createStatement();
+    ResultSet rs = st.executeQuery(sql);
+    return rs;
   }
 
   public void checkMarks() throws HeadlessException {
@@ -207,11 +228,13 @@ public class MainFrame extends javax.swing.JFrame {
     }
     Object[] data = {
       cid.getText(),
-      sname.getSelectedIndex(),
+      findsid(),
       cname.getText(),
       t1,
       t2,
       isPass};
+
+    con.prepareStatement(isPass)
   }//GEN-LAST:event_jButton1ActionPerformed
 
   /**
