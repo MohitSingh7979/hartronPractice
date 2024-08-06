@@ -14,12 +14,12 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author Me
  */
-public class MainFrame extends javax.swing.JFrame {
+public class MainFrameTextField extends javax.swing.JFrame {
 
   /**
    * Creates new form MainFrame
    */
-  public MainFrame() {
+  public MainFrameTextField() {
 
     initComponents();
     initcon();
@@ -43,13 +43,12 @@ public class MainFrame extends javax.swing.JFrame {
         model.addRow(data);
       }
     } catch (SQLException ex) {
-      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+      Logger.getLogger(MainFrameTextField.class.getName()).log(Level.SEVERE, null, ex);
     }
   }
 
   public void displaytable1() {
     try {
-      var isPass = "";
 
       String sql = "SELECT candidate_id, subject_name, candidate_name, test_marks_1, test_marks_2 FROM hartron_test.candidate_master c join subject_master s on c.subject_id = s.subject_id;";
       var rs = exe(sql);
@@ -57,6 +56,7 @@ public class MainFrame extends javax.swing.JFrame {
       model.setRowCount(0);
       int col = model.getColumnCount();
       while (rs.next()) {
+        var isPass = "";
         if (rs.getInt(4) >= 25 && rs.getInt(5) >= 25) {
           isPass = "Pass";
         } else {
@@ -73,7 +73,7 @@ public class MainFrame extends javax.swing.JFrame {
         model.addRow(data);
       }
     } catch (SQLException ex) {
-      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+      Logger.getLogger(MainFrameTextField.class.getName()).log(Level.SEVERE, null, ex);
     }
   }
 
@@ -86,7 +86,7 @@ public class MainFrame extends javax.swing.JFrame {
       rs.next();
       sid = rs.getInt(1);
     } catch (SQLException ex) {
-      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+      Logger.getLogger(MainFrameTextField.class.getName()).log(Level.SEVERE, null, ex);
     }
     return sid;
   }
@@ -100,7 +100,7 @@ public class MainFrame extends javax.swing.JFrame {
         sname.addItem(rs.getString(1));
       }
     } catch (SQLException ex) {
-      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+      Logger.getLogger(MainFrameTextField.class.getName()).log(Level.SEVERE, null, ex);
     }
   }
 
@@ -110,7 +110,7 @@ public class MainFrame extends javax.swing.JFrame {
       Statement st = con.createStatement();
       rs = st.executeQuery(sql);
     } catch (SQLException ex) {
-      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+      Logger.getLogger(MainFrameTextField.class.getName()).log(Level.SEVERE, null, ex);
     }
     return rs;
   }
@@ -129,7 +129,7 @@ public class MainFrame extends javax.swing.JFrame {
     try {
       con = DriverManager.getConnection("jdbc:mysql://localhost:3306/hartron_test", "root", "root");
     } catch (SQLException ex) {
-      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+      Logger.getLogger(MainFrameTextField.class.getName()).log(Level.SEVERE, null, ex);
     }
   }
   public Connection con;
@@ -297,7 +297,7 @@ public class MainFrame extends javax.swing.JFrame {
       }
       ps.execute();
     } catch (SQLException ex) {
-      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+      Logger.getLogger(MainFrameTextField.class.getName()).log(Level.SEVERE, null, ex);
     }
 
   }
@@ -319,20 +319,21 @@ public class MainFrame extends javax.swing.JFrame {
         }
       }
     } catch (ClassNotFoundException ex) {
-      java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+      java.util.logging.Logger.getLogger(MainFrameTextField.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
     } catch (InstantiationException ex) {
-      java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+      java.util.logging.Logger.getLogger(MainFrameTextField.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
     } catch (IllegalAccessException ex) {
-      java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+      java.util.logging.Logger.getLogger(MainFrameTextField.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
     } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-      java.util.logging.Logger.getLogger(MainFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+      java.util.logging.Logger.getLogger(MainFrameTextField.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
     }
+    //</editor-fold>
     //</editor-fold>
 
     /* Create and display the form */
     java.awt.EventQueue.invokeLater(new Runnable() {
       public void run() {
-        new MainFrame().setVisible(true);
+        new MainFrameTextField().setVisible(true);
       }
     });
   }
