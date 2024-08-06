@@ -8,6 +8,7 @@ import java.sql.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -25,11 +26,46 @@ public class MainFrame extends javax.swing.JFrame {
     fillsub();
     findsid();
 
+    displaytable1();
+
+  }
+
+  public void displaytable1() {
+    try {
+      var isPass = "";
+      if (t1 >= 25 && t1 >= 25) {
+        isPass = "Pass";
+      } else {
+        isPass = "Fail";
+      }
+      String sql = "SELECT candidate_id, subject_name, candidate_name, test_marks_1, test_marks_2 FROM hartron_test.candidate_master c join subject_master s on c.subject_id = s.subject_id;";
+      var rs = exe(sql);
+      DefaultTableModel model = (DefaultTableModel) table1.getModel();
+      model.setRowCount(0);
+      int col = model.getColumnCount();
+      while (rs.next()) {
+//        Object[] data = new Object[col];
+//        for (int i = 0; i < col; i++) {
+//          data[i] = rs.getObject(i + 1);
+//          data[5] = isPass;
+//        }
+        Object[] data = {
+          rs.getObject(1),
+          rs.getObject(2),
+          rs.getObject(3),
+          rs.getObject(4),
+          rs.getObject(5),
+          isPass
+        };
+        model.addRow(data);
+      }
+    } catch (SQLException ex) {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
   }
 
   public int findsid() {
     int sid = 0;
-
     try {
       var sn = sname.getSelectedItem();
       String sql = "SELECT s.subject_id FROM hartron_test.subject_master s where s.subject_name = '" + sn + "';";
@@ -55,9 +91,14 @@ public class MainFrame extends javax.swing.JFrame {
     }
   }
 
-  public ResultSet exe(String sql) throws SQLException {
-    Statement st = con.createStatement();
-    ResultSet rs = st.executeQuery(sql);
+  public ResultSet exe(String sql) {
+    ResultSet rs = null;
+    try {
+      Statement st = con.createStatement();
+      rs = st.executeQuery(sql);
+    } catch (SQLException ex) {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
     return rs;
   }
 
@@ -220,12 +261,6 @@ public class MainFrame extends javax.swing.JFrame {
   private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
     // TODO add your handling code here:
     checkMarks();
-    var isPass = "";
-    if (t1 >= 25 && t1 >= 25) {
-      isPass = "Pass";
-    } else {
-      isPass = "Fail";
-    }
 
     Object[] data = {
       cid.getText(),
@@ -234,7 +269,7 @@ public class MainFrame extends javax.swing.JFrame {
       t1,
       t2};
 
-    String sql = "insert into hartron_test.candidate_master (candidate_id, subject_name, candidate_name, test_marks_1, test_marks_2) values (?,?,?,?,?)";
+    String sql = "insert into hartron_test.candidate_master (candidate_id, subject_id, candidate_name, test_marks_1, test_marks_2) values (?,?,?,?,?)";
     exe(sql, data);
 
   }//GEN-LAST:event_jButton1ActionPerformed
