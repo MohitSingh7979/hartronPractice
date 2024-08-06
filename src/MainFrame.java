@@ -19,16 +19,34 @@ public class MainFrame extends javax.swing.JFrame {
    * Creates new form MainFrame
    */
   public MainFrame() {
+
     initComponents();
     initcon();
+    fillsub();
 
   }
 
+  public void fillsub() {
+    try {
+      var sql = "SELECT s.subject_name FROM hartron_test.subject_master s;";
+      sname.removeAllItems();
+      Statement st = con.createStatement();
+      ResultSet rs = st.executeQuery(sql);
+      while (rs.next()) {
+        sname.addItem(rs.getString(1));
+      }
+    } catch (SQLException ex) {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
+
   public void checkMarks() throws HeadlessException {
-    double t1 = Double.valueOf(test1marks.getText());
-    double t2 = Double.valueOf(test2marks.getText());
+    t2 = Double.parseDouble(test2marks.getText());
+    t1 = Double.parseDouble(test1marks.getText());
     if (t1 > 50 || t2 > 50) {
       JOptionPane.showMessageDialog(rootPane, "marks must be below 50");
+      test1marks.setText("");
+      test2marks.setText("");
     }
   }
 
@@ -40,6 +58,8 @@ public class MainFrame extends javax.swing.JFrame {
     }
   }
   public Connection con;
+  double t1;
+  double t2;
 
   /**
    * This method is called from within the constructor to initialize the form.
@@ -179,7 +199,19 @@ public class MainFrame extends javax.swing.JFrame {
   private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
     // TODO add your handling code here:
     checkMarks();
-
+    var isPass = "";
+    if (t1 >= 25 && t1 >= 25) {
+      isPass = "Pass";
+    } else {
+      isPass = "Fail";
+    }
+    Object[] data = {
+      cid.getText(),
+      sname.getSelectedIndex(),
+      cname.getText(),
+      t1,
+      t2,
+      isPass};
   }//GEN-LAST:event_jButton1ActionPerformed
 
   /**
