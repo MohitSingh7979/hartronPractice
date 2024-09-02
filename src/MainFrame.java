@@ -1,8 +1,60 @@
 
+import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JComboBox;
+
 public class MainFrame extends javax.swing.JFrame {
+
+  private Connection con;
+  String sql;
 
   public MainFrame() {
     initComponents();
+    setCon(con);
+    fillVehType();
+
+  }
+
+  void fillVehType() {
+    sql = "SELECT vehicle_type_name FROM xyz2.vehicle_master;";
+    comboBox(sql, vehicleType);
+
+  }
+
+  void comboBox(String sql, JComboBox box) {
+    box.removeAllItems();
+    try {
+      ResultSet rs = exe(sql);
+      while (rs.next()) {
+        box.addItem(rs.getString(1));
+      }
+    } catch (SQLException ex) {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
+
+  public ResultSet exe(String sql1) {
+    ResultSet rs = null;
+    Statement st;
+    try {
+      st = con.createStatement();
+      rs = st.executeQuery(sql1);
+    } catch (SQLException ex) {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
+    return rs;
+  }
+
+  void setTaxField() {
+    double p = Double.parseDouble(price.getText());
+    boolean con = p > 3000000;
+    String c = "";
+    double t = p - (con ? p * 18 / 100 : p * 12 / 100);
+    c += t;
+
+    tax.setText(c);
+
   }
 
   @SuppressWarnings("unchecked")
@@ -46,6 +98,11 @@ public class MainFrame extends javax.swing.JFrame {
     tax.setEditable(false);
 
     jButton1.setText("Purchase");
+    jButton1.addActionListener(new java.awt.event.ActionListener() {
+      public void actionPerformed(java.awt.event.ActionEvent evt) {
+        jButton1ActionPerformed(evt);
+      }
+    });
 
     jTable1.setModel(new javax.swing.table.DefaultTableModel(
       new Object [][] {
@@ -119,6 +176,60 @@ public class MainFrame extends javax.swing.JFrame {
 
     pack();
   }// </editor-fold>//GEN-END:initComponents
+
+  private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    try {
+      // TODO add your handling code here:
+
+      var vehType = vehicleType.getSelectedItem();
+      var vehName = vehicleName.getText();
+
+      sql = "SELECT vehicle_type_id FROM xyz2.vehicle_master where vehicle_type_name = '" + vehType + "' ;";
+      var rs = exe(sql);
+      rs.next();
+      var vehId = rs.getObject(1);
+
+      var jdt = (java.util.Date) date.getValue();
+      var mdt = new Date(jdt.getTime());
+
+      setTaxField();
+
+      sql = ""
+        + " insert into vehicle_details ("
+        + " vehicle_type_id,"
+        + " vehicle_name,"
+        + " manufacturing_date,"
+        + " price,"
+        + " tax"
+        + " ) values (?,?,?,?,?)";
+
+      Object[] data = {
+        vehId,
+        vehName,
+        mdt,
+        price.getText(),
+        tax.getText()
+      };
+
+      exe(sql, data);
+    } catch (SQLException ex) {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
+
+  }//GEN-LAST:event_jButton1ActionPerformed
+
+  public void exe(String sql, Object[] data) {
+    try {
+      PreparedStatement ps = con.prepareStatement(sql);
+      for (int i = 0; i < data.length; i++) {
+        ps.setObject(i + 1, data[i]);
+      }
+      ps.execute();
+    } catch (SQLException ex) {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
+
   public static void main(String args[]) {
     java.awt.EventQueue.invokeLater(new Runnable() {
       public void run() {
@@ -136,4 +247,13 @@ public class MainFrame extends javax.swing.JFrame {
   private javax.swing.JTextField vehicleName;
   private javax.swing.JComboBox<String> vehicleType;
   // End of variables declaration//GEN-END:variables
+
+  public void setCon(Connection con) {
+    try {
+      String url;
+      this.con = DriverManager.getConnection("jdbc:mysql://localhost:3306/xyz2", "root", "root");
+    } catch (SQLException ex) {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
 }
