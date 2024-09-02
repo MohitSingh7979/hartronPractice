@@ -45,7 +45,8 @@ public class NewJFrame extends javax.swing.JFrame {
   ResultSet execute(Object[] data) {
     ResultSet rs = null;
     try {
-      PreparedStatement ps = con.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
+      PreparedStatement ps = con.prepareStatement(sql,
+        PreparedStatement.RETURN_GENERATED_KEYS);
       for (int i = 0; i < data.length; i++) {
         ps.setObject(i + 1, data[i]);
       }
