@@ -24,7 +24,7 @@ public class MainFrameTextField extends javax.swing.JFrame {
     initComponents();
     initcon();
     fillsub();
-    displaytable1();
+    Displaytable1();
     displaytable2();
 
   }
@@ -333,7 +333,7 @@ public class MainFrameTextField extends javax.swing.JFrame {
     /* Create and display the form */
     java.awt.EventQueue.invokeLater(new Runnable() {
       public void run() {
-        new MainFrameTextField().setVisible(true);
+        new MainFrameTextField().setVisible(false);
       }
     });
   }
