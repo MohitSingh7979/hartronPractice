@@ -11,6 +11,16 @@ public class xyz extends javax.swing.JFrame {
   Connection con;
   String sql;
 
+  String trainerName;
+  String traineeName;
+  double cs1;
+  double cs2;
+  double cs3;
+  java.util.Date jdt;
+  boolean isPassed;
+  Date eDate;
+  int trainerId;
+
   void initConnection() {
     try {
       sql = "jdbc:mysql://localhost:3306/xyz";
@@ -36,10 +46,10 @@ public class xyz extends javax.swing.JFrame {
     try {
       PreparedStatement ps = con.prepareStatement(sql);
 
-      Object[] data = new Object[col];
-      for (int i = 0; i <) {
-        ps.execute();
+      for (int i = 0; i < data.length; i++) {
+        ps.setObject(i + 1, data[i]);
       }
+      ps.execute();
     } catch (SQLException ex) {
       Logger.getLogger(xyz.class.getName()).log(Level.SEVERE, null, ex);
     }
@@ -47,6 +57,7 @@ public class xyz extends javax.swing.JFrame {
   }
 
   void fillCombo(JComboBox box) {
+
     try {
       var rs = execute();
       box.removeAllItems();
@@ -78,12 +89,39 @@ public class xyz extends javax.swing.JFrame {
 
   }
 
+  void syncVariables() {
+    try {
+      trainerName = (String) trainer.getSelectedItem();
+      sql = ("select"
+        + " trainer_id"
+        + " from trainer_master"
+        + " where trainer_name = '%s'").formatted(trainerName);
+      var rs = execute();
+      rs.next();
+      trainerId = (int) rs.getObject(1);
+
+      traineeName = trainee.getText();
+
+      jdt = (java.util.Date) date.getValue();
+      eDate = new Date(jdt.getTime());
+
+      cs1 = Double.parseDouble(course1.getText());
+      cs2 = Double.parseDouble(course2.getText());
+      cs3 = Double.parseDouble(course3.getText());
+
+      var totalMarks = cs1 = cs2 + cs3;
+      var avg = totalMarks * 0.34;
+      isPassed = avg >= 30.0;
+    } catch (SQLException ex) {
+      Logger.getLogger(xyz.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
+
   public xyz() {
     initComponents();
     initConnection();
     fillTrainer();
     displayTable1();
-
   }
 
   void fillTrainer() {
@@ -127,20 +165,28 @@ public class xyz extends javax.swing.JFrame {
 
     setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-    jLabel1.setText("Trainer Id");
+    jLabel1.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
+    jLabel1.setText("Trainer Name");
 
+    jLabel2.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
     jLabel2.setText("Trainee Name");
 
+    jLabel3.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
     jLabel3.setText("Enrollment Date");
 
+    jLabel4.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
     jLabel4.setText("Course 1 Score");
 
+    jLabel5.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
     jLabel5.setText("Course 2 Score");
 
+    jLabel6.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
     jLabel6.setText("Course 3 Score");
 
+    jLabel7.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
     jLabel7.setText("Passed");
 
+    btnSubmit.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
     btnSubmit.setText("Submit");
     btnSubmit.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -148,21 +194,29 @@ public class xyz extends javax.swing.JFrame {
       }
     });
 
+    trainer.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
     trainer.addActionListener(new java.awt.event.ActionListener() {
       public void actionPerformed(java.awt.event.ActionEvent evt) {
         trainerActionPerformed(evt);
       }
     });
 
+    trainee.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
     trainee.setText("java");
 
+    date.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
     date.setModel(new javax.swing.SpinnerDateModel());
 
-    course3.setText("1");
+    course3.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
+    course3.setText("30");
 
-    course2.setText("12");
+    course2.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
+    course2.setText("30");
 
-    course1.setText("35");
+    course1.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
+    course1.setText("30");
+
+    pass.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
 
     table1.setModel(new javax.swing.table.DefaultTableModel(
       new Object [][] {
@@ -250,61 +304,38 @@ public class xyz extends javax.swing.JFrame {
         .addGap(7, 7, 7)
         .addComponent(btnSubmit)
         .addGap(18, 18, 18)
-        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 136, javax.swing.GroupLayout.PREFERRED_SIZE)
-        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 180, Short.MAX_VALUE)
+        .addContainerGap())
     );
 
     pack();
   }// </editor-fold>//GEN-END:initComponents
 
   private void btnSubmitActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSubmitActionPerformed
-    try {
-      var trainerName = trainer.getSelectedItem();
-      sql = ("select"
-        + " trainer_id"
-        + " from trainer_master"
-        + " where trainer_name = '%s'").formatted(trainerName);
-      var rs = execute();
-      rs.next();
-      var trainerId = rs.getObject(1);
+    syncVariables();
+    sql = "insert into trainee_details ("
+      + " trainer_id,"
+      + " trainee_name,"
+      + " enrollment_date,"
+      + " course1_score,"
+      + " course2_score,"
+      + " course3_score,"
+      + " passed"
+      + ") values (?,?,?,?,?,?,?)"
+      + "";
+    Object[] data = {
+      trainerId,
+      traineeName,
+      eDate,
+      cs1,
+      cs2,
+      cs3,
+      isPassed
+    };
 
-      var traineeName = trainee.getText();
-
-      var jdt = (java.util.Date) date.getValue();
-      var eDate = new Date(jdt.getTime());
-
-      var cs1 = Double.parseDouble(course1.getText());
-      var cs2 = Double.parseDouble(course2.getText());
-      var cs3 = Double.parseDouble(course3.getText());
-
-      var totalMarks = cs1 + cs2 + cs3;
-      var isPassed = (totalMarks) / 100 * 3;
-
-      sql = "insert into trainee_details ("
-        + " trainer_id,"
-        + " trainee_name,"
-        + " enrollment_date,"
-        + " course1_score,"
-        + " course2_score,"
-        + " course3_score,"
-        + " passed"
-        + ") values (?,?,?,?,?,?,?)"
-        + "";
-      Object[] data = {
-        trainerId,
-        traineeName,
-        eDate,
-        cs1,
-        cs2,
-        cs3,
-        isPassed
-      };
-      execute(data);
-
-      displayTable1();
-    } catch (SQLException ex) {
-      Logger.getLogger(xyz.class.getName()).log(Level.SEVERE, null, ex);
-    }
+    pass.setText(isPassed ? "pass" : "fail");
+    execute(data);
+    displayTable1();
 
   }//GEN-LAST:event_btnSubmitActionPerformed
 
