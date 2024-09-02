@@ -64,10 +64,11 @@ public class MainFrame extends javax.swing.JFrame {
       var model = (DefaultTableModel) table.getModel();
       model.setRowCount(0);
       var col = model.getColumnCount();
-
-      Object[] data = new Object[col];
-      for (int i = 0; i < col; i++) {
-        data[i] = rs.getObject(i + 1);
+      while (rs.next()) {
+        Object[] data = new Object[col];
+        for (int i = 0; i < col; i++) {
+          data[i] = rs.getObject(i + 1);
+        }
         model.addRow(data);
       }
     } catch (SQLException ex) {
@@ -81,6 +82,8 @@ public class MainFrame extends javax.swing.JFrame {
     fillBlock();
     fillSchool();
     displayTable1();
+    displayWithoutPower();
+    displayWithoutWater();
   }
 
   void fillBlock() {
@@ -94,13 +97,11 @@ public class MainFrame extends javax.swing.JFrame {
   }
 
   void displayTable1() {
-    sql = "select"
-      + " b.block_name,"
-      + " sum(school_id)"
-      + " from block_master"
-      + " join school_master s"
-      + " on b.block_id = s.block_id"
-      + " group by b.block_name";
+    sql = "select block_name, count(school_id)"
+      + "  from school_master s"
+      + "  left join block_master b on s.block_id = b.block_id"
+      + "  group by block_name"
+      + "";
 
     displayTable(table1);
   }
@@ -250,12 +251,11 @@ public class MainFrame extends javax.swing.JFrame {
       sql = ("select"
         + " block_id from block_master"
         + " where block_name = '%s'").formatted(blkName);
-
-      var schlName = school.getSelectedItem();
       var rs = exe();
       rs.next();
       var blkId = rs.getObject(1);
 
+      var schlName = school.getSelectedItem();
       sql = ("select"
         + " school_id from school_master"
         + " where school_name = '%s'").formatted(schlName);
@@ -276,20 +276,38 @@ public class MainFrame extends javax.swing.JFrame {
         water.isSelected(),};
       exe(data);
 
-//      sql = "";
-//      rs = exe();
-//      rs.next();
-//      withoutPower.setText(rs.getString(1));
-//
-//       sql = "";
-//      rs = exe();
-//      rs.next();
-//      withoutWater.setText(rs.getString(1));
+      displayWithoutPower();
+      displayWithoutWater();
+
       displayTable1();
     } catch (SQLException ex) {
       Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
     }
   }//GEN-LAST:event_btnAddActionPerformed
+
+  void displayWithoutWater() {
+    try {
+      ResultSet rs;
+      sql = "select count(*) from utility_details where water_supply = 0";
+      rs = exe();
+      rs.next();
+      withoutWater.setText(rs.getString(1));
+    } catch (SQLException ex) {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
+
+  void displayWithoutPower() {
+    try {
+      ResultSet rs;
+      sql = "select count(*) from utility_details where power_supply = 0";
+      rs = exe();
+      rs.next();
+      withoutPower.setText(rs.getString(1));
+    } catch (SQLException ex) {
+      Logger.getLogger(MainFrame.class.getName()).log(Level.SEVERE, null, ex);
+    }
+  }
 
   public static void main(String args[]) {
     java.awt.EventQueue.invokeLater(new Runnable() {
