@@ -11,10 +11,23 @@ public class GUI extends javax.swing.JFrame {
 
     Connection con;
     String sql;
+    
+    void fillAuthor(){
+        sql = "SELECT am.author_name FROM library.author_master am;";
+        try {
+            ResultSet rs = execute();
+            author.removeAllItems();
+            while (rs.next()) {                
+                author.addItem(rs.getString(1));
+            }
+        } catch (SQLException e) {
+        }
+    }
 
     public GUI() {
         initComponents();
         initializeConnection();
+        fillAuthor();
     }
 
     @SuppressWarnings("unchecked")
