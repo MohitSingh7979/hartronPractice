@@ -66,4 +66,15 @@ public class GUI extends javax.swing.JFrame {
         }
         return rs;
     }
+    
+    int getId(){
+        int id = 0;
+        try {
+            ResultSet rs = execute();
+            rs.next();
+            id = rs.getInt(1);
+        } catch (SQLException e) {
+        }
+        return id;
+    }
 }
