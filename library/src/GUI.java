@@ -20,13 +20,15 @@ public class GUI extends javax.swing.JFrame {
             while (rs.next()) {                
                 author.addItem(rs.getString(1));
             }
-        } catch (SQLException e) {
+            System.out.println("fillauthor");
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
         }
     }
 
     public GUI() {
         initComponents();
-        initializeConnection();
+        initConnection();
         fillAuthor();
     }
 
@@ -129,11 +131,11 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel4;
     private javax.swing.JSpinner price;
     // End of variables declaration//GEN-END:variables
-    void initializeConnection() {
+    void initConnection() {
         try {
             con = DriverManager.getConnection("jdbc:mysql://localhost:3306/library","root","root");
             System.out.println("connection");
-        } catch (SQLException e) {
+        } catch (Exception e) {
             System.err.println(e.getMessage());
         }
     }
@@ -143,7 +145,7 @@ public class GUI extends javax.swing.JFrame {
         try {
             Statement st = con.createStatement();
             rs = st.executeQuery(sql);
-        } catch (SQLException e) {
+        } catch (Exception e) {
             System.err.println(e.getMessage());
         }
         return rs;
@@ -155,7 +157,7 @@ public class GUI extends javax.swing.JFrame {
             ResultSet rs = execute();
             rs.next();
             id = rs.getInt(1);
-        } catch (SQLException e) {
+        } catch (Exception e) {
         }
         return id;
     }
