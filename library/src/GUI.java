@@ -6,21 +6,21 @@ import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.swing.JOptionPane;
 
 public class GUI extends javax.swing.JFrame {
 
     Connection con;
     String sql;
-    
-    void fillAuthor(){
+
+    void fillAuthor() {
         sql = "SELECT am.author_name FROM library.author_master am;";
         try {
             ResultSet rs = execute();
             author.removeAllItems();
-            while (rs.next()) {                
+            while (rs.next()) {
                 author.addItem(rs.getString(1));
             }
-            System.out.println("fillauthor");
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -36,13 +36,13 @@ public class GUI extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel1 = new javax.swing.JLabel();
         author = new javax.swing.JComboBox<>();
-        jLabel2 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel2 = new javax.swing.JLabel();
         book = new javax.swing.JTextField();
-        jLabel3 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel3 = new javax.swing.JLabel();
         date = new javax.swing.JSpinner();
-        jLabel4 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel4 = new javax.swing.JLabel();
         price = new javax.swing.JSpinner();
         btnAddBookDetails = new javax.swing.JButton();
 
@@ -50,7 +50,7 @@ public class GUI extends javax.swing.JFrame {
 
         jLabel1.setText("author");
 
-        jLabel2.setText("book title");
+        jLabel2.setText("title");
 
         jLabel3.setText("pulication date");
 
@@ -61,6 +61,11 @@ public class GUI extends javax.swing.JFrame {
         price.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 1));
 
         btnAddBookDetails.setText("Add Book Details");
+        btnAddBookDetails.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnAddBookDetailsActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -112,6 +117,29 @@ public class GUI extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void btnAddBookDetailsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAddBookDetailsActionPerformed
+        // TODO add your handling code here:
+        sql = ("SELECT author_id FROM library.author_master a WHERE author_name = '%s'").formatted(author.getSelectedItem());
+        int authorId = getId();
+
+        java.util.Date javaDate = (java.util.Date) date.getValue();
+        Date sqlDate = new Date(javaDate.getTime());
+
+        sql = "INSERT INTO `library`.`book` (`author_id`, `book_title`, `publication_date`, `price`) VALUES (?,?,?,?)";
+        try {
+            PreparedStatement pst = con.prepareStatement(sql);
+            pst.setObject(1, authorId);
+            pst.setObject(2, book.getText());
+            pst.setObject(3, sqlDate);
+            pst.setObject(4, price.getValue());
+            pst.execute();
+
+            JOptionPane.showMessageDialog(rootPane, "Details inserted successfull");
+        } catch (Exception e) {
+            System.err.println(e.getMessage());
+        }
+    }//GEN-LAST:event_btnAddBookDetailsActionPerformed
+
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -125,22 +153,17 @@ public class GUI extends javax.swing.JFrame {
     private javax.swing.JTextField book;
     private javax.swing.JButton btnAddBookDetails;
     private javax.swing.JSpinner date;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JSpinner price;
     // End of variables declaration//GEN-END:variables
     void initConnection() {
         try {
-            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/library","root","root");
-            System.out.println("connection");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/library", "root", "root");
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
     }
-    
-    ResultSet execute(){
+
+    ResultSet execute() {
         ResultSet rs = null;
         try {
             Statement st = con.createStatement();
@@ -150,8 +173,8 @@ public class GUI extends javax.swing.JFrame {
         }
         return rs;
     }
-    
-    int getId(){
+
+    int getId() {
         int id = 0;
         try {
             ResultSet rs = execute();
