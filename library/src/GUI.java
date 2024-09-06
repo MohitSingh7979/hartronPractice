@@ -5,7 +5,6 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
@@ -178,6 +177,7 @@ public class GUI extends javax.swing.JFrame {
             pst.execute();
 
             JOptionPane.showMessageDialog(rootPane, "Details inserted successfull");
+            displayTable1();
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
