@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.Statement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class GUI extends javax.swing.JFrame {
 
@@ -50,8 +51,19 @@ public class GUI extends javax.swing.JFrame {
         try {
             con = DriverManager.getConnection("jdbc:mysql://localhost:3306/library","root","root");
             System.out.println("connection");
-        } catch (Exception e) {
+        } catch (SQLException e) {
             System.err.println(e.getMessage());
         }
+    }
+    
+    ResultSet execute(){
+        ResultSet rs = null;
+        try {
+            Statement st = con.createStatement();
+            rs = st.executeQuery(sql);
+        } catch (SQLException e) {
+            System.err.println(e.getMessage());
+        }
+        return rs;
     }
 }
