@@ -1,19 +1,35 @@
+
+import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /*
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
-
 /**
  *
  * @author Me
  */
 public class Main extends javax.swing.JFrame {
 
+    Connection con;
+
     /**
      * Creates new form Main
      */
     public Main() {
         initComponents();
+
+        createConnection();
+    }
+
+    private void createConnection() {
+        try {
+            con = DriverManager.getConnection("jdbc:mysql://localhost/test_1", "root", "root");
+        } catch (SQLException ex) {
+            Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     /**
