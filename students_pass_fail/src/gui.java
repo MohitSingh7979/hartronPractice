@@ -1,5 +1,13 @@
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class gui extends javax.swing.JFrame {
+
+    Connection connection;
 
     public gui() {
         initComponents();
@@ -34,4 +42,11 @@ public class gui extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     // End of variables declaration//GEN-END:variables
+void initConn() {
+        try {
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306", "root", "root");
+        } catch (SQLException ex) {
+            Logger.getLogger(gui.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }
