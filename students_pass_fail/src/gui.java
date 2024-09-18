@@ -32,9 +32,8 @@ public class gui extends javax.swing.JFrame {
                 int s1m = rs.getInt(2);
                 int s2m = rs.getInt(3);
                 int s3m = rs.getInt(4);
-                
-                String status = (s1m+s2m+s3m)/3>30?"Passed":"Failed";
 
+                String status = (s1m + s2m + s3m) / 3 > 30 ? "Passed" : "Failed";
 
 //                Object[] rowData = new Object[col];
 //                rowData[0] = s1m;
@@ -43,7 +42,6 @@ public class gui extends javax.swing.JFrame {
 //                rowData[3] = rs.getString(4);
 //                rowData[4] = status;
 //                dtm.addRow(rowData);
-
 //                ArrayList<Object> rowData = new ArrayList<>();
 //                rowData.add(s1m);
 //                rowData.add(s2m);
@@ -94,7 +92,7 @@ public class gui extends javax.swing.JFrame {
         s2 = new javax.swing.JSpinner();
         s3 = new javax.swing.JSpinner();
         statusOut = new javax.swing.JTextField();
-        addStudentBtn = new javax.swing.JButton();
+        addStudentDetailsBtn = new javax.swing.JButton();
         javax.swing.JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
         report1 = new javax.swing.JTable();
 
@@ -123,11 +121,11 @@ public class gui extends javax.swing.JFrame {
 
         statusOut.setEditable(false);
 
-        addStudentBtn.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        addStudentBtn.setText("Add Student");
-        addStudentBtn.addActionListener(new java.awt.event.ActionListener() {
+        addStudentDetailsBtn.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        addStudentDetailsBtn.setText("Add Student");
+        addStudentDetailsBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                addStudentBtnActionPerformed(evt);
+                addStudentDetailsBtnActionPerformed(evt);
             }
         });
 
@@ -176,7 +174,7 @@ public class gui extends javax.swing.JFrame {
                                         .addComponent(jLabel4, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                         .addComponent(s3, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addComponent(addStudentBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(addStudentDetailsBtn, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(18, 18, 18)
                         .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 419, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(heading, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -210,7 +208,7 @@ public class gui extends javax.swing.JFrame {
                             .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(statusOut, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(85, 85, 85)
-                        .addComponent(addStudentBtn))
+                        .addComponent(addStudentDetailsBtn))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -218,10 +216,22 @@ public class gui extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void addStudentBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addStudentBtnActionPerformed
-        // TODO add your handling code here:
-        showReport();
-    }//GEN-LAST:event_addStudentBtnActionPerformed
+    private void addStudentDetailsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addStudentDetailsBtnActionPerformed
+        try {
+            // TODO add your handling code here:
+            String sql = "INSERT INTO `students`.`students_details` (`student_name`, `student_s1_marks`, `student_s2_marks`, `student_s3_marks`) VALUES (?, ?, ?, ?)";
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ps.setObject(1, name.getText());
+            ps.setObject(2, s1.getValue());
+            ps.setObject(3, s2.getValue());
+            ps.setObject(4, s3.getValue());
+
+            ps.executeUpdate();
+            showReport();
+        } catch (SQLException ex) {
+            Logger.getLogger(gui.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_addStudentDetailsBtnActionPerformed
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -231,7 +241,7 @@ public class gui extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton addStudentBtn;
+    private javax.swing.JButton addStudentDetailsBtn;
     private javax.swing.JTextField name;
     private javax.swing.JTable report1;
     private javax.swing.JSpinner s1;
@@ -239,7 +249,8 @@ public class gui extends javax.swing.JFrame {
     private javax.swing.JSpinner s3;
     private javax.swing.JTextField statusOut;
     // End of variables declaration//GEN-END:variables
-void initConn() {
+
+    void initConn() {
         try {
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/students", "root", "root");
         } catch (SQLException ex) {

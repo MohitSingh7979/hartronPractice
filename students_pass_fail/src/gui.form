@@ -58,7 +58,7 @@
                                   </Group>
                               </Group>
                           </Group>
-                          <Component id="addStudentBtn" alignment="1" max="32767" attributes="0"/>
+                          <Component id="addStudentDetailsBtn" alignment="1" max="32767" attributes="0"/>
                       </Group>
                       <EmptySpace type="separate" max="-2" attributes="0"/>
                       <Component id="jScrollPane1" min="-2" pref="419" max="-2" attributes="0"/>
@@ -102,7 +102,7 @@
                           <Component id="statusOut" alignment="3" min="-2" pref="25" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="-2" pref="85" max="-2" attributes="0"/>
-                      <Component id="addStudentBtn" min="-2" max="-2" attributes="0"/>
+                      <Component id="addStudentDetailsBtn" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Component id="jScrollPane1" pref="0" max="32767" attributes="0"/>
               </Group>
@@ -203,7 +203,7 @@
         <Property name="editable" type="boolean" value="false"/>
       </Properties>
     </Component>
-    <Component class="javax.swing.JButton" name="addStudentBtn">
+    <Component class="javax.swing.JButton" name="addStudentDetailsBtn">
       <Properties>
         <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
           <Font name="Segoe UI" size="18" style="1"/>
@@ -211,7 +211,7 @@
         <Property name="text" type="java.lang.String" value="Add Student"/>
       </Properties>
       <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addStudentBtnActionPerformed"/>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="addStudentDetailsBtnActionPerformed"/>
       </Events>
     </Component>
     <Container class="javax.swing.JScrollPane" name="jScrollPane1">
