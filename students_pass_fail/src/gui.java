@@ -8,11 +8,13 @@ import java.util.ArrayList;// comment
 import java.util.Vector;// comment
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 public class gui extends javax.swing.JFrame {
 
     Connection connection;
+    boolean runProgram;
 
     void showReport() {
         try {
@@ -117,7 +119,23 @@ public class gui extends javax.swing.JFrame {
         jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel6.setText("Status");
 
-        s3.setModel(new javax.swing.SpinnerNumberModel());
+        s1.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                s1StateChanged(evt);
+            }
+        });
+
+        s2.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                s2StateChanged(evt);
+            }
+        });
+
+        s3.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                s3StateChanged(evt);
+            }
+        });
 
         statusOut.setEditable(false);
 
@@ -217,21 +235,62 @@ public class gui extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void addStudentDetailsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addStudentDetailsBtnActionPerformed
-        try {
-            // TODO add your handling code here:
-            String sql = "INSERT INTO `students`.`students_details` (`student_name`, `student_s1_marks`, `student_s2_marks`, `student_s3_marks`) VALUES (?, ?, ?, ?)";
-            PreparedStatement ps = connection.prepareStatement(sql);
-            ps.setObject(1, name.getText());
-            ps.setObject(2, s1.getValue());
-            ps.setObject(3, s2.getValue());
-            ps.setObject(4, s3.getValue());
+        if (runProgram) {
+            try {
+                // TODO add your handling code here:
+                String sql = "INSERT INTO `students`.`students_details` (`student_name`, `student_s1_marks`, `student_s2_marks`, `student_s3_marks`) VALUES (?, ?, ?, ?)";
+                PreparedStatement ps = connection.prepareStatement(sql);
+                ps.setObject(1, name.getText());
+                ps.setObject(2, s1.getValue());
+                ps.setObject(3, s2.getValue());
+                ps.setObject(4, s3.getValue());
 
-            ps.executeUpdate();
-            showReport();
-        } catch (SQLException ex) {
-            Logger.getLogger(gui.class.getName()).log(Level.SEVERE, null, ex);
+                ps.executeUpdate();
+                showReport();
+            } catch (SQLException ex) {
+                Logger.getLogger(gui.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }//GEN-LAST:event_addStudentDetailsBtnActionPerformed
+
+    private void s1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_s1StateChanged
+        // TODO add your handling code here:
+        var submarks = s1.getValue();
+        var marks = Integer.parseInt(submarks.toString());
+
+        if (marks > 100 || marks < 0) {
+            JOptionPane.showMessageDialog(rootPane, marks < 0 ? " enter marks above 0" : " enter marks below 100");
+            s1.setValue(0);
+            runProgram = false;
+        } else {
+            runProgram = true;
+        }
+    }//GEN-LAST:event_s1StateChanged
+
+    private void s2StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_s2StateChanged
+        // TODO add your handling code here:
+        var submarks = s2.getValue();
+        var marks = Integer.parseInt(submarks.toString());
+        runProgram = (marks >= 0 && marks <= 100);
+        if (!runProgram) {
+            JOptionPane.showMessageDialog(rootPane, marks < 0 ? " enter marks above 0" : " enter marks below 100");
+            s2.setValue(0);
+        }
+    }//GEN-LAST:event_s2StateChanged
+
+    private void s3StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_s3StateChanged
+        // TODO add your handling code here:
+        var submarks = s3.getValue();
+        var marks = Integer.parseInt(submarks.toString());
+        runProgram = (marks >= 0 && marks <= 100);
+        if (runProgram) {
+            return;
+        }
+        JOptionPane.showMessageDialog(rootPane, marks < 0 ? " enter marks above 0" : " enter marks below 100");
+        s3.setValue(0);
+
+    }//GEN-LAST:event_s3StateChanged
+
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
