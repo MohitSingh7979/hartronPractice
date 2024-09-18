@@ -46,10 +46,8 @@ public class gui extends javax.swing.JFrame {
 
 //                  students fail if she/he get less than 30 in any subject
 //                String statFail = (sub1mark < 30 || sub2mark < 30 || sub3mark < 30) ? "Failed" : "Passed";
-
 //                  students pass if she/he get more than and equal to 30 in all subjects
 //                String statPass = (sub1mark >= 30 && sub2mark >= 30 && sub3mark >= 30) ? "Passed" : "Failed";
-
 //                Object[] rowData = new Object[col];
 //                rowData[0] = s1m;
 //                rowData[1] = s2m;
@@ -132,18 +130,21 @@ public class gui extends javax.swing.JFrame {
         jLabel6.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
         jLabel6.setText("Status");
 
+        s1.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
         s1.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 s1StateChanged(evt);
             }
         });
 
+        s2.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
         s2.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 s2StateChanged(evt);
             }
         });
 
+        s3.setModel(new javax.swing.SpinnerNumberModel(0.0d, null, null, 1.0d));
         s3.addChangeListener(new javax.swing.event.ChangeListener() {
             public void stateChanged(javax.swing.event.ChangeEvent evt) {
                 s3StateChanged(evt);
@@ -249,14 +250,26 @@ public class gui extends javax.swing.JFrame {
 
     private void addStudentDetailsBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addStudentDetailsBtnActionPerformed
         if (runProgram) {
+            double sub1mark = Double.parseDouble(s1.getValue().toString());
+            double sub2mark = Double.parseDouble(s2.getValue().toString());
+            double sub3mark = Double.parseDouble(s3.getValue().toString());
+            if (sub1mark >= 0 && sub1mark <= 100) {
+                return;
+            }
+            if (sub2mark >= 0 && sub2mark <= 100) {
+                return;
+            }
+            if (sub3mark >= 0 && sub3mark <= 100) {
+                return;
+            }
             try {
                 // TODO add your handling code here:
                 String sql = "INSERT INTO `students`.`students_details` (`student_name`, `student_s1_marks`, `student_s2_marks`, `student_s3_marks`) VALUES (?, ?, ?, ?)";
                 PreparedStatement ps = connection.prepareStatement(sql);
                 ps.setObject(1, name.getText());
-                ps.setObject(2, s1.getValue());
-                ps.setObject(3, s2.getValue());
-                ps.setObject(4, s3.getValue());
+                ps.setObject(2, sub1mark);
+                ps.setObject(3, sub2mark);
+                ps.setObject(4, sub3mark);
 
                 ps.executeUpdate();
                 showReport();
@@ -287,8 +300,8 @@ public class gui extends javax.swing.JFrame {
 
     private void s2StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_s2StateChanged
         // TODO add your handling code here:
-        var submarks = s2.getValue();
-        var marks = Integer.parseInt(submarks.toString());
+        var subMarks = s2.getValue();
+        var marks = Double.parseDouble(subMarks.toString());
         runProgram = (marks >= 0 && marks <= 100);
         if (!runProgram) {
             JOptionPane.showMessageDialog(rootPane, marks < 0 ? " enter marks above or equal to 0" : " enter marks below or equal to 100");
