@@ -280,16 +280,15 @@ public class gui extends javax.swing.JFrame {
     }//GEN-LAST:event_addStudentDetailsBtnActionPerformed
 
     void validateSpinner(JSpinner sm) {
-        var submarks = sm.getValue();
+        var submarks = s3.getValue();
         var marks = Integer.parseInt(submarks.toString());
-
-        if (marks > 100 || marks < 0) {
-            JOptionPane.showMessageDialog(rootPane, marks < 0 ? " enter marks above or equal to 0" : " enter marks below or equal to 100");
-            sm.setValue(0);
-            runProgram = false;
-        } else {
-            runProgram = true;
+        runProgram = (marks >= 0 && marks <= 100);
+        if (runProgram) {
+            return;
         }
+
+        JOptionPane.showMessageDialog(rootPane, marks < 0 ? " enter marks above or equal to 0" : " enter marks below or equal to 100");
+        s3.setValue(0);
     }
 
 
@@ -300,26 +299,12 @@ public class gui extends javax.swing.JFrame {
 
     private void s2StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_s2StateChanged
         // TODO add your handling code here:
-        var subMarks = s2.getValue();
-        var marks = Double.parseDouble(subMarks.toString());
-        runProgram = (marks >= 0 && marks <= 100);
-        if (!runProgram) {
-            JOptionPane.showMessageDialog(rootPane, marks < 0 ? " enter marks above or equal to 0" : " enter marks below or equal to 100");
-            s2.setValue(0);
-        }
+        validateSpinner(s2);
     }//GEN-LAST:event_s2StateChanged
 
     private void s3StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_s3StateChanged
         // TODO add your handling code here:
-        var submarks = s3.getValue();
-        var marks = Integer.parseInt(submarks.toString());
-        runProgram = (marks >= 0 && marks <= 100);
-        if (runProgram) {
-            return;
-        }
-
-        JOptionPane.showMessageDialog(rootPane, marks < 0 ? " enter marks above or equal to 0" : " enter marks below or equal to 100");
-        s3.setValue(0);
+        validateSpinner(s3);
     }//GEN-LAST:event_s3StateChanged
 
     public static void main(String args[]) {
