@@ -9,6 +9,7 @@ import java.util.Vector;// comment
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
 import javax.swing.table.DefaultTableModel;
 
 public class gui extends javax.swing.JFrame {
@@ -31,11 +32,23 @@ public class gui extends javax.swing.JFrame {
             dtm.setRowCount(0);
             int col = dtm.getColumnCount();
             while (rs.next()) {
-                int s1m = rs.getInt(2);
-                int s2m = rs.getInt(3);
-                int s3m = rs.getInt(4);
+                // always take double for calculation
+                // never int for getting value through rs
+                double sub1mark = rs.getDouble(2);
+                double sub2mark = rs.getDouble(3);
+                double sub3mark = rs.getDouble(4);
 
-                String status = (s1m + s2m + s3m) / 3 > 30 ? "Passed" : "Failed";
+//                  put dot zero after number for calculation
+                double avgMarks = (sub1mark + sub2mark + sub3mark) / 3.0;
+
+//                 student pass if he/she got avg above or equal to 30
+                String status = avgMarks >= 30.0 ? "Passed" : "Failed";
+
+//                  students fail if she/he get less than 30 in any subject
+//                String statFail = (sub1mark < 30 || sub2mark < 30 || sub3mark < 30) ? "Failed" : "Passed";
+
+//                  students pass if she/he get more than and equal to 30 in all subjects
+//                String statPass = (sub1mark >= 30 && sub2mark >= 30 && sub3mark >= 30) ? "Passed" : "Failed";
 
 //                Object[] rowData = new Object[col];
 //                rowData[0] = s1m;
@@ -53,9 +66,9 @@ public class gui extends javax.swing.JFrame {
 //                dtm.addRow(rowData.toArray());
                 Object[] rowData = new Object[]{
                     rs.getString(1),
-                    s1m,
-                    s2m,
-                    s3m,
+                    sub1mark,
+                    sub2mark,
+                    sub3mark,
                     status
                 };
                 dtm.addRow(rowData);
@@ -253,18 +266,23 @@ public class gui extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_addStudentDetailsBtnActionPerformed
 
-    private void s1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_s1StateChanged
-        // TODO add your handling code here:
-        var submarks = s1.getValue();
+    void validateSpinner(JSpinner sm) {
+        var submarks = sm.getValue();
         var marks = Integer.parseInt(submarks.toString());
 
         if (marks > 100 || marks < 0) {
-            JOptionPane.showMessageDialog(rootPane, marks < 0 ? " enter marks above 0" : " enter marks below 100");
-            s1.setValue(0);
+            JOptionPane.showMessageDialog(rootPane, marks < 0 ? " enter marks above or equal to 0" : " enter marks below or equal to 100");
+            sm.setValue(0);
             runProgram = false;
         } else {
             runProgram = true;
         }
+    }
+
+
+    private void s1StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_s1StateChanged
+        // TODO add your handling code here:
+        validateSpinner(s1);
     }//GEN-LAST:event_s1StateChanged
 
     private void s2StateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_s2StateChanged
@@ -273,7 +291,7 @@ public class gui extends javax.swing.JFrame {
         var marks = Integer.parseInt(submarks.toString());
         runProgram = (marks >= 0 && marks <= 100);
         if (!runProgram) {
-            JOptionPane.showMessageDialog(rootPane, marks < 0 ? " enter marks above 0" : " enter marks below 100");
+            JOptionPane.showMessageDialog(rootPane, marks < 0 ? " enter marks above or equal to 0" : " enter marks below or equal to 100");
             s2.setValue(0);
         }
     }//GEN-LAST:event_s2StateChanged
@@ -286,9 +304,9 @@ public class gui extends javax.swing.JFrame {
         if (runProgram) {
             return;
         }
-        JOptionPane.showMessageDialog(rootPane, marks < 0 ? " enter marks above 0" : " enter marks below 100");
-        s3.setValue(0);
 
+        JOptionPane.showMessageDialog(rootPane, marks < 0 ? " enter marks above or equal to 0" : " enter marks below or equal to 100");
+        s3.setValue(0);
     }//GEN-LAST:event_s3StateChanged
 
     public static void main(String args[]) {
