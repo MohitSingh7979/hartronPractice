@@ -1,17 +1,82 @@
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;// comment
+import java.util.Vector;// comment
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.table.DefaultTableModel;
 
 public class gui extends javax.swing.JFrame {
 
     Connection connection;
 
+    void showReport() {
+        try {
+            String sql = "SELECT"
+                    + " student_name,"
+                    + " student_s1_marks,"
+                    + " student_s2_marks,"
+                    + " student_s3_marks"
+                    + " FROM students_details";
+            PreparedStatement ps = connection.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            DefaultTableModel dtm = (DefaultTableModel) report1.getModel();
+            dtm.setRowCount(0);
+            int col = dtm.getColumnCount();
+            while (rs.next()) {
+                int s1m = rs.getInt(2);
+                int s2m = rs.getInt(3);
+                int s3m = rs.getInt(4);
+                
+                String status = (s1m+s2m+s3m)/3>30?"Passed":"Failed";
+
+
+//                Object[] rowData = new Object[col];
+//                rowData[0] = s1m;
+//                rowData[1] = s2m;
+//                rowData[2] = s3m;
+//                rowData[3] = rs.getString(4);
+//                rowData[4] = status;
+//                dtm.addRow(rowData);
+
+//                ArrayList<Object> rowData = new ArrayList<>();
+//                rowData.add(s1m);
+//                rowData.add(s2m);
+//                rowData.add(s3m);
+//                rowData.add(rs.getString(4));
+//                rowData.add(status);
+//                dtm.addRow(rowData.toArray());
+                Object[] rowData = new Object[]{
+                    rs.getString(1),
+                    s1m,
+                    s2m,
+                    s3m,
+                    status
+                };
+                dtm.addRow(rowData);
+
+//                Vector<Object> rowData = new Vector<>();
+//                rowData.add(s1m);
+//                rowData.add(s2m);
+//                rowData.add(s3m);
+//                rowData.add(rs.getString(4));
+//                rowData.add(status);
+//                dtm.addRow(rowData);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(gui.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     public gui() {
         initComponents();
         initConn();
+        showReport();
     }
 
     @SuppressWarnings("unchecked")
@@ -60,6 +125,11 @@ public class gui extends javax.swing.JFrame {
 
         addStudentBtn.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         addStudentBtn.setText("Add Student");
+        addStudentBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                addStudentBtnActionPerformed(evt);
+            }
+        });
 
         report1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -147,6 +217,11 @@ public class gui extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void addStudentBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_addStudentBtnActionPerformed
+        // TODO add your handling code here:
+        showReport();
+    }//GEN-LAST:event_addStudentBtnActionPerformed
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -166,7 +241,7 @@ public class gui extends javax.swing.JFrame {
     // End of variables declaration//GEN-END:variables
 void initConn() {
         try {
-            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306", "root", "root");
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/students", "root", "root");
         } catch (SQLException ex) {
             Logger.getLogger(gui.class.getName()).log(Level.SEVERE, null, ex);
         }
