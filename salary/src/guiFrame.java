@@ -14,12 +14,12 @@ public class guiFrame extends javax.swing.JFrame {
 
     public guiFrame() {
         initComponents();
-        intConn();
-        fillEmpCombo();
+        initConn();
+        fillEmpCom();
 
     }
 
-    private void fillEmpCombo() {
+    private void fillEmpCom() {
         sql="SELECT * FROM employee";
         try {
             PreparedStatement ps = con.prepareStatement(sql);
@@ -36,7 +36,7 @@ public class guiFrame extends javax.swing.JFrame {
         }
     }
 
-    private void intConn() {
+    private void initConn() {
         try {
             con = DriverManager.getConnection("jdbc:mysql://localhost:3306/salary", "root", "root");
         } catch (SQLException ex) {
@@ -96,7 +96,11 @@ public class guiFrame extends javax.swing.JFrame {
 
         empId.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        salMonth.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        leaves.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 1));
+
+        salMonth.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sept", "oct", "nav", "dec" }));
+
+        year.setModel(new javax.swing.SpinnerNumberModel(1980, 1980, null, 1));
 
         report1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -148,7 +152,7 @@ public class guiFrame extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(empId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 430, Short.MAX_VALUE))
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
@@ -172,7 +176,7 @@ public class guiFrame extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(year, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE)))
+                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
