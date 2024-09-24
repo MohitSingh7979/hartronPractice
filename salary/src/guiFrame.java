@@ -17,19 +17,34 @@ public class guiFrame extends javax.swing.JFrame {
         initConn();
         fillEmpCom();
 
+        getNamSal();
+    }
+
+    private void getNamSal() throws NumberFormatException {
+        int id = Integer.parseInt(empId.getSelectedItem().toString());
+
+        sql = "SELECT employeename, salary FROM employee where employeeid  = ?";
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+
+            nameOut.setText(rs.getString(1));
+            salOut.setText(rs.getString(2));
+        } catch (SQLException ex) {
+            Logger.getLogger(guiFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void fillEmpCom() {
-        sql="SELECT * FROM employee";
+        sql = "SELECT * FROM employee";
         try {
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             empId.removeAllItems();
             while (rs.next()) {
-                empId.addItem(("%s-%s").formatted(
-                        rs.getString(1),
-                        rs.getString(2)
-                ));
+                empId.addItem(rs.getString(1));
             }
         } catch (SQLException ex) {
             Logger.getLogger(guiFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -59,6 +74,7 @@ public class guiFrame extends javax.swing.JFrame {
         javax.swing.JLabel jLabel9 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
         id = new javax.swing.JSpinner();
+        nameOut = new javax.swing.JTextField();
         empId = new javax.swing.JComboBox<>();
         leaves = new javax.swing.JSpinner();
         salMonth = new javax.swing.JComboBox<>();
@@ -70,6 +86,7 @@ public class guiFrame extends javax.swing.JFrame {
         report1 = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
         report2 = new javax.swing.JTable();
+        javax.swing.JLabel jLabel10 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -94,7 +111,11 @@ public class guiFrame extends javax.swing.JFrame {
 
         jButton1.setText("ADD TRANSACTION");
 
-        empId.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        empId.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
+            public void propertyChange(java.beans.PropertyChangeEvent evt) {
+                empIdPropertyChange(evt);
+            }
+        });
 
         leaves.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 1));
 
@@ -128,6 +149,8 @@ public class guiFrame extends javax.swing.JFrame {
         ));
         jScrollPane2.setViewportView(report2);
 
+        jLabel10.setText("NAME");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -150,7 +173,11 @@ public class guiFrame extends javax.swing.JFrame {
                             .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(empId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(empId, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(nameOut, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                     .addGroup(layout.createSequentialGroup()
@@ -190,6 +217,10 @@ public class guiFrame extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(id, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(20, 20, 20)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(nameOut, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(19, 19, 19)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -222,13 +253,20 @@ public class guiFrame extends javax.swing.JFrame {
                             .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(netOut, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 206, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(18, 36, Short.MAX_VALUE)
+                .addGap(18, 18, Short.MAX_VALUE)
                 .addComponent(jButton1)
                 .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void empIdPropertyChange(java.beans.PropertyChangeEvent evt) {//GEN-FIRST:event_empIdPropertyChange
+        // TODO add your handling code here:
+        if (empId != null) {
+            getNamSal();
+        }
+    }//GEN-LAST:event_empIdPropertyChange
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -246,6 +284,7 @@ public class guiFrame extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSpinner leaves;
+    private javax.swing.JTextField nameOut;
     private javax.swing.JTextField netOut;
     private javax.swing.JTable report1;
     private javax.swing.JTable report2;
