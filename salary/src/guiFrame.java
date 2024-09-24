@@ -1,20 +1,43 @@
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class guiFrame extends javax.swing.JFrame {
+
     Connection con;
+    String sql;
 
     public guiFrame() {
+        initComponents();
         intConn();
+        fillEmpCombo();
+
+    }
+
+    private void fillEmpCombo() {
+        sql="SELECT * FROM employee";
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            empId.removeAllItems();
+            while (rs.next()) {
+                empId.addItem(("%s-%s").formatted(
+                        rs.getString(1),
+                        rs.getString(2)
+                ));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(guiFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void intConn() {
         try {
-            initComponents();
             con = DriverManager.getConnection("jdbc:mysql://localhost:3306/salary", "root", "root");
         } catch (SQLException ex) {
             Logger.getLogger(guiFrame.class.getName()).log(Level.SEVERE, null, ex);
