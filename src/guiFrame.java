@@ -16,7 +16,6 @@ public class guiFrame extends javax.swing.JFrame {
     public guiFrame() {
         initComponents();
         initConnection();
-        fillRoles();
         showReport();
 
 
@@ -52,17 +51,19 @@ public class guiFrame extends javax.swing.JFrame {
     }
 
     private void fillRoles() {
-        sql = "SELECT * FROM role_master";
+        sql = "SELECT role_code, role_name, role_min_marks FROM role_master";
+        int nqtMarks = Integer.parseInt(nqt.getValue().toString());
+
+
         try {
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             role.removeAllItems();
             while (rs.next()) {
-                role.addItem(("%s-%s").formatted(
-                        rs.getString(1),
-                        rs.getString(2)
-                )
-                );
+                int roleMarks = Integer.parseInt(rs.getString(3));
+                if(roleMarks<=nqtMarks){
+                    role.addItem(rs.getString(2));
+                }
             }
         } catch (SQLException ex) {
             Logger.getLogger(guiFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -121,6 +122,15 @@ public class guiFrame extends javax.swing.JFrame {
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jButton1ActionPerformed(evt);
+            }
+        });
+
+        grade.setModel(new javax.swing.SpinnerNumberModel(0.0d, 0.0d, 10.0d, 1.0d));
+
+        nqt.setModel(new javax.swing.SpinnerNumberModel(0, 0, 120, 1));
+        nqt.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                nqtStateChanged(evt);
             }
         });
 
@@ -220,7 +230,13 @@ public class guiFrame extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void nqtStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_nqtStateChanged
+        // TODO add your handling code here:
+        fillRoles();
+    }//GEN-LAST:event_nqtStateChanged
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
