@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.table.DefaultTableModel;
 
 public class guiFrame extends javax.swing.JFrame {
 
@@ -16,6 +17,38 @@ public class guiFrame extends javax.swing.JFrame {
         initComponents();
         initConnection();
         fillRoles();
+        showReport();
+
+
+    }
+
+    private void showReport() {
+        sql="SELECT"
+                + "      can_id,"
+                + "     can_name,"
+                + "     role_name"
+                + " FROM candidate_details cd join  role_master rm"
+                + " on cd.can_apply_for = rm.role_code";
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            DefaultTableModel dtm = (DefaultTableModel) report.getModel();
+            dtm.setRowCount(0);
+
+            while (rs.next()) {
+                Object[] rowDate = new Object[]{
+                    rs.getString(1),
+                    rs.getString(2),
+                    rs.getString(3),
+//                    rs.getString(4),
+                    "no role"
+                };
+                dtm.addRow(rowDate);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(guiFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void fillRoles() {
@@ -85,6 +118,11 @@ public class guiFrame extends javax.swing.JFrame {
 
         jButton1.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
         jButton1.setText("ADD DETAILS");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         role.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
@@ -179,6 +217,10 @@ public class guiFrame extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
