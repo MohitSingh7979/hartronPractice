@@ -4,8 +4,10 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 public class guiFrame extends javax.swing.JFrame {
@@ -18,35 +20,34 @@ public class guiFrame extends javax.swing.JFrame {
         initConnection();
         showReport();
 
-
     }
 
     private void showReport() {
-        sql="SELECT"
-                + "      can_id,"
+        sql = "SELECT "
+                + "     can_id,"
                 + "     can_name,"
-                + "     role_name"
-                + " FROM candidate_details cd join  role_master rm"
-                + " on cd.can_apply_for = rm.role_code";
+                + "     role_name,"
+                + "     can_nqt_marks"
+                + " FROM candidate_details cd join  role_master rm on cd.can_apply_for = rm.role_code";
         try {
-            PreparedStatement ps = con.prepareStatement(sql);
-            ResultSet rs = ps.executeQuery();
+            PreparedStatement ps1 = con.prepareStatement(sql);
+            ResultSet rs1 = ps1.executeQuery();
 
             DefaultTableModel dtm = (DefaultTableModel) report.getModel();
             dtm.setRowCount(0);
 
-            while (rs.next()) {
+            while (rs1.next()) {
                 Object[] rowDate = new Object[]{
-                    rs.getString(1),
-                    rs.getString(2),
-                    rs.getString(3),
-//                    rs.getString(4),
-                    "no role"
+                    rs1.getString(1),
+                    rs1.getString(2),
+                    rs1.getString(3),
                 };
                 dtm.addRow(rowDate);
             }
+
         } catch (SQLException ex) {
             Logger.getLogger(guiFrame.class.getName()).log(Level.SEVERE, null, ex);
+
         }
     }
 
@@ -54,14 +55,13 @@ public class guiFrame extends javax.swing.JFrame {
         sql = "SELECT role_code, role_name, role_min_marks FROM role_master";
         int nqtMarks = Integer.parseInt(nqt.getValue().toString());
 
-
         try {
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             role.removeAllItems();
             while (rs.next()) {
                 int roleMarks = Integer.parseInt(rs.getString(3));
-                if(roleMarks<=nqtMarks){
+                if (roleMarks <= nqtMarks) {
                     role.addItem(rs.getString(2));
                 }
             }
@@ -125,6 +125,8 @@ public class guiFrame extends javax.swing.JFrame {
             }
         });
 
+        date.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(1727245208485L), null, null, java.util.Calendar.MONTH));
+
         grade.setModel(new javax.swing.SpinnerNumberModel(0.0d, 0.0d, 10.0d, 1.0d));
 
         nqt.setModel(new javax.swing.SpinnerNumberModel(0, 0, 120, 1));
@@ -133,8 +135,6 @@ public class guiFrame extends javax.swing.JFrame {
                 nqtStateChanged(evt);
             }
         });
-
-        role.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
         report.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -147,6 +147,7 @@ public class guiFrame extends javax.swing.JFrame {
                 "CANDIDATE ID", "CANDIDATE NAME", "ROLE APPLIED", "ROLE GIVEN"
             }
         ));
+        report.setEnabled(false);
         jScrollPane1.setViewportView(report);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -229,7 +230,65 @@ public class guiFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        try {
+            // TODO add your handling code here:
+            if (role.getSelectedItem() == null) {
+                JOptionPane.showMessageDialog(rootPane, "cannot take admission");
+                return;
+            }
+
+            int cId = Integer.parseInt(id.getValue().toString());
+
+            sql = "SELECT can_id FROM candidate_details";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int canId = Integer.parseInt(rs.getString(1));
+                if (cId == canId) {
+                    JOptionPane.showMessageDialog(rootPane, "id already exits");
+                }
+            }
+
+            String cName = name.getText();
+
+            java.util.Date javaDate = (java.util.Date) date.getValue();
+            Date sqlDate = new Date(javaDate.getTime());
+
+            double gGrade = Double.parseDouble(grade.getValue().toString());
+
+            int nqtMarks = Integer.parseInt(nqt.getValue().toString());
+
+            String roleSel = role.getSelectedItem().toString();
+            sql = "SELECT role_code FROM role_master where role_name = ?";
+            PreparedStatement ps1 = con.prepareStatement(sql);
+            ps1.setString(1, roleSel);
+            ResultSet rs1 = ps1.executeQuery();
+            rs1.next();
+            int roleId = rs1.getInt(1);
+
+            sql = "INSERT INTO `roles`.`candidate_details` ("
+                    + "     `can_id`,"
+                    + "     `can_name`,"
+                    + "     `can_grad_date`,"
+                    + "     `can_grad_grade`,"
+                    + "     `can_nqt_marks`,"
+                    + "     `can_apply_for`"
+                    + ") VALUES (?, ?, ?, ?, ?, ?);";
+            PreparedStatement ps2 = con.prepareStatement(sql);
+            ps2.setInt(1, cId);
+            ps2.setString(2, cName);
+            ps2.setObject(3, sqlDate);
+            ps2.setDouble(4, gGrade);
+            ps2.setInt(5, nqtMarks);
+            ps2.setInt(6, roleId);
+
+            ps2.executeUpdate();
+            JOptionPane.showMessageDialog(rootPane, "insertion done");
+            
+            showReport();
+        } catch (SQLException ex) {
+            Logger.getLogger(guiFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
     }//GEN-LAST:event_jButton1ActionPerformed
 
