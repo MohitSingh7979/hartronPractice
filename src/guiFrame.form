@@ -201,11 +201,14 @@
           <SpinnerModel initial="1727245208485" stepSize="2" type="date"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="dateStateChanged"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JSpinner" name="grade">
       <Properties>
         <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
-          <SpinnerModel initial="0.0" maximum="10.0" minimum="0.0" numberType="java.lang.Double" stepSize="1.0" type="number"/>
+          <SpinnerModel initial="0.0" maximum="10.0" minimum="0.0" numberType="java.lang.Float" stepSize="0.100000024" type="number"/>
         </Property>
       </Properties>
     </Component>

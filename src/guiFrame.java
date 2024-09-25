@@ -5,9 +5,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
+import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.SpinnerDateModel;
 import javax.swing.table.DefaultTableModel;
 
 public class guiFrame extends javax.swing.JFrame {
@@ -20,6 +22,46 @@ public class guiFrame extends javax.swing.JFrame {
         initConnection();
         showReport();
 
+// doj 5
+// now 10
+// doj -  now >= 1 ? 12.5 : 0
+//        java.util.Date doj = (java.util.Date) date.getValue();
+//        Date now= new Date();
+//        if(now.compareTo(doj)>=1){
+//            System.out.println("1 year completed");
+//        }
+// doj 5
+// now 10
+// dop doj+1yr
+// dop<= now  ? 12.5 : 0
+        java.util.Date doj = (java.util.Date) date.getValue();
+        Date dop = doj;
+        dop.setYear(doj.getYear() + 1);
+
+        Date now = new Date();
+
+        if (now.compareTo(dop) <= 1) {
+            System.out.println("1 year completed");
+        }
+
+//        java.util.Date javaDate = (java.util.Date) date.getValue();
+////        Date sqlDate = new Date(javaDate.getTime());
+//
+//        Date newDate= javaDate;
+//        newDate.setYear(javaDate.getYear()+3);
+//
+//        Date now = new Date();
+//
+//        if(newDate.compareTo(now)){
+//        }
+//        Date now = new Date();
+//        SpinnerDateModel sdm = (SpinnerDateModel) date.getModel();
+//        now.setYear(now.getYear()-2);
+//        sdm.setStart(now);
+//
+//        now = new Date();
+//        now.setYear(now.getYear()+2);
+//        sdm.setEnd(now);
     }
 
     private void showReport() {
@@ -37,10 +79,25 @@ public class guiFrame extends javax.swing.JFrame {
             dtm.setRowCount(0);
 
             while (rs1.next()) {
+                int nqtMarksSql = Integer.parseInt(rs1.getString(4));
+                Vector roleNames = new Vector();
+
+                sql = "SELECT role_name,role_min_marks FROM role_master";
+                PreparedStatement ps2 = con.prepareStatement(sql);
+                ResultSet rs2 = ps2.executeQuery();
+
+                while (rs2.next()) {
+                    int minMax = Integer.parseInt(rs2.getString(2));
+                    if (nqtMarksSql >= minMax) {
+                        roleNames.add(rs2.getString(1));
+                    }
+                }
+
                 Object[] rowDate = new Object[]{
                     rs1.getString(1),
                     rs1.getString(2),
                     rs1.getString(3),
+                    roleNames
                 };
                 dtm.addRow(rowDate);
             }
@@ -52,7 +109,7 @@ public class guiFrame extends javax.swing.JFrame {
     }
 
     private void fillRoles() {
-        sql = "SELECT role_code, role_name, role_min_marks FROM role_master";
+        sql = "SELECT role_name, role_min_marks FROM role_master";
         int nqtMarks = Integer.parseInt(nqt.getValue().toString());
 
         try {
@@ -60,9 +117,9 @@ public class guiFrame extends javax.swing.JFrame {
             ResultSet rs = ps.executeQuery();
             role.removeAllItems();
             while (rs.next()) {
-                int roleMarks = Integer.parseInt(rs.getString(3));
+                int roleMarks = Integer.parseInt(rs.getString(2));
                 if (roleMarks <= nqtMarks) {
-                    role.addItem(rs.getString(2));
+                    role.addItem(rs.getString(1));
                 }
             }
         } catch (SQLException ex) {
@@ -126,8 +183,13 @@ public class guiFrame extends javax.swing.JFrame {
         });
 
         date.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(1727245208485L), null, null, java.util.Calendar.MONTH));
+        date.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                dateStateChanged(evt);
+            }
+        });
 
-        grade.setModel(new javax.swing.SpinnerNumberModel(0.0d, 0.0d, 10.0d, 1.0d));
+        grade.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(0.0f), Float.valueOf(0.0f), Float.valueOf(10.0f), Float.valueOf(0.100000024f)));
 
         nqt.setModel(new javax.swing.SpinnerNumberModel(0, 0, 120, 1));
         nqt.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -239,14 +301,22 @@ public class guiFrame extends javax.swing.JFrame {
 
             int cId = Integer.parseInt(id.getValue().toString());
 
-            sql = "SELECT can_id FROM candidate_details";
+//            sql = "SELECT can_id FROM candidate_details";
+//            PreparedStatement ps = con.prepareStatement(sql);
+//            ResultSet rs = ps.executeQuery();
+//            while (rs.next()) {
+//                int canId = Integer.parseInt(rs.getString(1));
+//                if (cId == canId) {
+//                    JOptionPane.showMessageDialog(rootPane, "id already exits");
+//                }
+//            }
+
+            sql = "select can_id from candidate_details where can_id = ? ";
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                int canId = Integer.parseInt(rs.getString(1));
-                if (cId == canId) {
-                    JOptionPane.showMessageDialog(rootPane, "id already exits");
-                }
+            if (rs.next()) {
+                JOptionPane.showMessageDialog(rootPane, "id already exits");
+                return;
             }
 
             String cName = name.getText();
@@ -259,6 +329,7 @@ public class guiFrame extends javax.swing.JFrame {
             int nqtMarks = Integer.parseInt(nqt.getValue().toString());
 
             String roleSel = role.getSelectedItem().toString();
+
             sql = "SELECT role_code FROM role_master where role_name = ?";
             PreparedStatement ps1 = con.prepareStatement(sql);
             ps1.setString(1, roleSel);
@@ -284,7 +355,7 @@ public class guiFrame extends javax.swing.JFrame {
 
             ps2.executeUpdate();
             JOptionPane.showMessageDialog(rootPane, "insertion done");
-            
+
             showReport();
         } catch (SQLException ex) {
             Logger.getLogger(guiFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -296,6 +367,17 @@ public class guiFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
         fillRoles();
     }//GEN-LAST:event_nqtStateChanged
+
+    private void dateStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_dateStateChanged
+        // TODO add your handling code here:
+
+// doj 5
+// now 10
+// now - doj >= 1 ? 12.5 : 0
+        java.util.Date doj = (java.util.Date) date.getValue();
+        Date now = new Date();
+        System.out.println(now.compareTo(doj));
+    }//GEN-LAST:event_dateStateChanged
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
