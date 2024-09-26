@@ -9,7 +9,9 @@ import java.util.Vector;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.JSpinner;
 import javax.swing.SpinnerDateModel;
+import javax.swing.SpinnerModel;
 import javax.swing.table.DefaultTableModel;
 
 public class guiFrame extends javax.swing.JFrame {
@@ -22,14 +24,38 @@ public class guiFrame extends javax.swing.JFrame {
         initConnection();
         showReport();
 
+        dateDiff1();
+        dateDiff2();
+
+        setDateLim();
+
+    }
+
+    private void setDateLim() {
+        SpinnerDateModel spinDate = (SpinnerDateModel) date.getModel();
+
+        Date now = new Date();
+        now.setYear(now.getYear() - 2);
+        spinDate.setStart(now);
+
+        now = new Date();
+        now.setYear(now.getYear() + 2);
+        spinDate.setEnd(now);
+    }
+
+    private void dateDiff1() {
 // doj 5
 // now 10
 // doj -  now >= 1 ? 12.5 : 0
-//        java.util.Date doj = (java.util.Date) date.getValue();
-//        Date now= new Date();
-//        if(now.compareTo(doj)>=1){
-//            System.out.println("1 year completed");
-//        }
+        java.util.Date doj = (java.util.Date) date.getValue();
+        Date now = new Date();
+        if (now.compareTo(doj) >= 1) {
+            System.out.println("1 year completed");
+        }
+    }
+
+    private void dateDiff2() {
+
 // doj 5
 // now 10
 // dop doj+1yr
@@ -43,25 +69,6 @@ public class guiFrame extends javax.swing.JFrame {
         if (now.compareTo(dop) <= 1) {
             System.out.println("1 year completed");
         }
-
-//        java.util.Date javaDate = (java.util.Date) date.getValue();
-////        Date sqlDate = new Date(javaDate.getTime());
-//
-//        Date newDate= javaDate;
-//        newDate.setYear(javaDate.getYear()+3);
-//
-//        Date now = new Date();
-//
-//        if(newDate.compareTo(now)){
-//        }
-//        Date now = new Date();
-//        SpinnerDateModel sdm = (SpinnerDateModel) date.getModel();
-//        now.setYear(now.getYear()-2);
-//        sdm.setStart(now);
-//
-//        now = new Date();
-//        now.setYear(now.getYear()+2);
-//        sdm.setEnd(now);
     }
 
     private void showReport() {
@@ -183,11 +190,6 @@ public class guiFrame extends javax.swing.JFrame {
         });
 
         date.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(1727245208485L), null, null, java.util.Calendar.MONTH));
-        date.addChangeListener(new javax.swing.event.ChangeListener() {
-            public void stateChanged(javax.swing.event.ChangeEvent evt) {
-                dateStateChanged(evt);
-            }
-        });
 
         grade.setModel(new javax.swing.SpinnerNumberModel(Float.valueOf(0.0f), Float.valueOf(0.0f), Float.valueOf(10.0f), Float.valueOf(0.100000024f)));
 
@@ -310,7 +312,6 @@ public class guiFrame extends javax.swing.JFrame {
 //                    JOptionPane.showMessageDialog(rootPane, "id already exits");
 //                }
 //            }
-
             sql = "select can_id from candidate_details where can_id = ? ";
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -367,17 +368,6 @@ public class guiFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
         fillRoles();
     }//GEN-LAST:event_nqtStateChanged
-
-    private void dateStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_dateStateChanged
-        // TODO add your handling code here:
-
-// doj 5
-// now 10
-// now - doj >= 1 ? 12.5 : 0
-        java.util.Date doj = (java.util.Date) date.getValue();
-        Date now = new Date();
-        System.out.println(now.compareTo(doj));
-    }//GEN-LAST:event_dateStateChanged
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
