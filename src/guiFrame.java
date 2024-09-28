@@ -34,13 +34,14 @@ public class guiFrame extends javax.swing.JFrame {
     }
 
     private void showReport() {
-        sql = "SELECT "
+        sql = "   SELECT "
                 + "     can_id, "
                 + "     can_name,"
                 + "     role_name,"
                 + "     can_grad_grade, "
                 + "     can_apply_for "
-                + " FROM candidate_details c join role_master r on c.can_apply_for = r.role_code";
+                + " FROM candidate_details c join role_master r "
+                + " on c.can_apply_for = r.role_code";
 
         String[] roles = {
             "Not Selected",
@@ -58,11 +59,11 @@ public class guiFrame extends javax.swing.JFrame {
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
             model.setRowCount(0);
             while (rs.next()) {
-                double grade = rs.getDouble(4);
+                double canGrade = rs.getDouble(4);
                 int roleAppliedFor = rs.getInt(5);
-                int roleInd = grade < 6 ? -2
-                        : grade < 7 ? -1
-                                : grade >= 9 ? 1 : 0;
+                int roleInd = canGrade < 6 ? -2
+                        : canGrade < 7 ? -1
+                                : canGrade >= 9 ? 1 : 0;
 
                 Object[] data = new Object[]{
                     rs.getString(1),
