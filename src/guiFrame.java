@@ -1,9 +1,9 @@
 
 import java.sql.*;
-import java.time.LocalDate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.SpinnerDateModel;
 import javax.swing.table.DefaultTableModel;
 
 public class guiFrame extends javax.swing.JFrame {
@@ -15,10 +15,37 @@ public class guiFrame extends javax.swing.JFrame {
         initComponents();
         createConnection();
         showReport();
+
+        SpinnerDateModel sdm = (SpinnerDateModel) date.getModel();
+
+        java.util.Date javaDate = (java.util.Date) date.getValue();
+        Date now = new Date(javaDate.getTime());
+        now.setYear(javaDate.getYear() - 2);
+        sdm.setStart(now);
+
+        now = new Date(javaDate.getTime());
+        now.setYear(javaDate.getYear() + 2);
+        sdm.setEnd(now);
     }
 
     private void showReport() {
-        sql = "SELECT can_id, can_name,can_apply_for FROM candidate_details";
+        sql = "SELECT "
+                + "     can_id, "
+                + "     can_name,"
+                + "     role_name,"
+                + "     can_grad_grade, "
+                + "     can_apply_for "
+                + " FROM candidate_details c join role_master r on c.can_apply_for = r.role_code";
+
+        String[] roles = {
+            "Not Selected",
+            "Not Selected",
+            "r1",
+            "r2",
+            "r3",
+            "r3"
+        };
+
         try {
             PreparedStatement ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -26,10 +53,16 @@ public class guiFrame extends javax.swing.JFrame {
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
             model.setRowCount(0);
             while (rs.next()) {
+                int grade = rs.getInt(4);
+                int roleInd = grade < 6 ? -2
+                        : grade < 7 ? -1
+                                : grade >= 9 ? 1 : 0;
+
                 Object[] data = new Object[]{
                     rs.getString(1),
                     rs.getString(2),
                     rs.getString(3),
+                    roles[roleInd + 2]
                 };
                 model.addRow(data);
             }
@@ -210,11 +243,17 @@ public class guiFrame extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         try {
+            if (role.getSelectedItem() == null) {
+                JOptionPane.showMessageDialog(rootPane, "fill all fields");
+                return;
+            }
+
             int canId = Integer.parseInt(id.getValue().toString());
-            sql = "SELECT * FROM role_master where role_code = ?";
+            sql = "SELECT * FROM candidate_details where can_id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, canId);
-            if (!ps.execute()) {
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
                 JOptionPane.showMessageDialog(rootPane, " change can id");
                 return;
             }
