@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 public class guiFrame extends javax.swing.JFrame {
 
@@ -13,7 +14,28 @@ public class guiFrame extends javax.swing.JFrame {
     public guiFrame() {
         initComponents();
         createConnection();
+        showReport();
+    }
 
+    private void showReport() {
+        sql = "SELECT can_id, can_name,can_apply_for FROM candidate_details";
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
+            model.setRowCount(0);
+            while (rs.next()) {
+                Object[] data = new Object[]{
+                    rs.getString(1),
+                    rs.getString(2),
+                    rs.getString(3),
+                };
+                model.addRow(data);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(guiFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void fillRoles() {
@@ -192,7 +214,7 @@ public class guiFrame extends javax.swing.JFrame {
             sql = "SELECT * FROM role_master where role_code = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, canId);
-            if(!ps.execute()){
+            if (!ps.execute()) {
                 JOptionPane.showMessageDialog(rootPane, " change can id");
                 return;
             }
@@ -211,7 +233,6 @@ public class guiFrame extends javax.swing.JFrame {
             rs1.next();
             int roleCode = rs1.getInt(1);
 
-
             sql = "INSERT INTO `roles_again`.`candidate_details` ("
                     + "     `can_id`,"
                     + "     `can_name`, "
@@ -220,14 +241,16 @@ public class guiFrame extends javax.swing.JFrame {
                     + "     `can_nqt_marks`, "
                     + "     `can_apply_for`"
                     + ") VALUES (?, ?, ?, ?, ?, ?)";
-                        PreparedStatement ps2 = con.prepareStatement(sql);
-                        ps2.setInt(1, canId);
-                        ps2.setString(2, canName);
-                        ps2.setDate(3, gradDate);
-                        ps2.setDouble(4, canGrade);
-                        ps2.setInt(5, nqtMarks);
-                        ps2.setInt(6, roleCode);
-                        ps2.executeUpdate();
+            PreparedStatement ps2 = con.prepareStatement(sql);
+            ps2.setInt(1, canId);
+            ps2.setString(2, canName);
+            ps2.setDate(3, gradDate);
+            ps2.setDouble(4, canGrade);
+            ps2.setInt(5, nqtMarks);
+            ps2.setInt(6, roleCode);
+            ps2.executeUpdate();
+            showReport();
+
         } catch (SQLException ex) {
             Logger.getLogger(guiFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
