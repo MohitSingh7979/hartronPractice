@@ -1,7 +1,9 @@
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 
 public class guiFrame extends javax.swing.JFrame {
 
@@ -105,6 +107,11 @@ public class guiFrame extends javax.swing.JFrame {
 
         jButton1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jButton1.setText("ADD CANDIDATE DETAILS");
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -176,9 +183,56 @@ public class guiFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void nqtStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_nqtStateChanged
-        // TODO add your handling code here:
         fillRoles();
     }//GEN-LAST:event_nqtStateChanged
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        try {
+            int canId = Integer.parseInt(id.getValue().toString());
+            sql = "SELECT * FROM role_master where role_code = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, canId);
+            if(!ps.execute()){
+                JOptionPane.showMessageDialog(rootPane, " change can id");
+                return;
+            }
+            String canName = name.getText();
+
+            java.util.Date javaDate = (java.util.Date) date.getValue();
+            Date gradDate = new Date(javaDate.getTime());
+
+            double canGrade = Double.parseDouble(grade.getValue().toString());
+            int nqtMarks = Integer.parseInt(nqt.getValue().toString());
+
+            sql = "SELECT role_code FROM role_master where role_name = ?";
+            PreparedStatement ps1 = con.prepareStatement(sql);
+            ps1.setString(1, role.getSelectedItem().toString());
+            ResultSet rs1 = ps1.executeQuery();
+            rs1.next();
+            int roleCode = rs1.getInt(1);
+
+
+            sql = "INSERT INTO `roles_again`.`candidate_details` ("
+                    + "     `can_id`,"
+                    + "     `can_name`, "
+                    + "     `can_grad_date`, "
+                    + "     `can_grad_grade`, "
+                    + "     `can_nqt_marks`, "
+                    + "     `can_apply_for`"
+                    + ") VALUES (?, ?, ?, ?, ?, ?)";
+                        PreparedStatement ps2 = con.prepareStatement(sql);
+                        ps2.setInt(1, canId);
+                        ps2.setString(2, canName);
+                        ps2.setDate(3, gradDate);
+                        ps2.setDouble(4, canGrade);
+                        ps2.setInt(5, nqtMarks);
+                        ps2.setInt(6, roleCode);
+                        ps2.executeUpdate();
+        } catch (SQLException ex) {
+            Logger.getLogger(guiFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
