@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import javax.swing.JOptionPane;
 import javax.swing.SpinnerDateModel;
 import javax.swing.table.DefaultTableModel;
+import java.util.Date;
 
 public class guiFrame extends javax.swing.JFrame {
 
@@ -15,16 +16,20 @@ public class guiFrame extends javax.swing.JFrame {
         initComponents();
         createConnection();
         showReport();
+        dateLimit();
+    }
 
-        SpinnerDateModel sdm = (SpinnerDateModel) date.getModel();
+    private void dateLimit() {
+        SpinnerDateModel sdm = (SpinnerDateModel) dt.getModel();
 
-        java.util.Date javaDate = (java.util.Date) date.getValue();
-        Date now = new Date(javaDate.getTime());
-        now.setYear(javaDate.getYear() - 2);
-        sdm.setStart(now);
+        // using spinner model
+        Date spinDate = sdm.getDate();
+        spinDate.setYear(spinDate.getYear() - 2);
+        sdm.setStart(spinDate);
 
-        now = new Date(javaDate.getTime());
-        now.setYear(javaDate.getYear() + 2);
+        // using util.date
+        Date now = new Date();
+        now.setYear(now.getYear() + 2);
         sdm.setEnd(now);
     }
 
@@ -53,7 +58,8 @@ public class guiFrame extends javax.swing.JFrame {
             DefaultTableModel model = (DefaultTableModel) jTable1.getModel();
             model.setRowCount(0);
             while (rs.next()) {
-                int grade = rs.getInt(4);
+                double grade = rs.getDouble(4);
+                int roleAppliedFor = rs.getInt(5);
                 int roleInd = grade < 6 ? -2
                         : grade < 7 ? -1
                                 : grade >= 9 ? 1 : 0;
@@ -62,7 +68,7 @@ public class guiFrame extends javax.swing.JFrame {
                     rs.getString(1),
                     rs.getString(2),
                     rs.getString(3),
-                    roles[roleInd + 2]
+                    roles[roleAppliedFor+roleInd+1]
                 };
                 model.addRow(data);
             }
@@ -101,22 +107,22 @@ public class guiFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel1 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel2 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel3 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel4 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel5 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel6 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel7 = new javax.swing.JLabel();
         id = new javax.swing.JSpinner();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        date = new javax.swing.JSpinner();
-        jLabel5 = new javax.swing.JLabel();
+        name = new javax.swing.JTextField();
+        dt = new javax.swing.JSpinner();
         grade = new javax.swing.JSpinner();
         nqt = new javax.swing.JSpinner();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
-        name = new javax.swing.JTextField();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        role = new javax.swing.JComboBox<>();
+        javax.swing.JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jButton1 = new javax.swing.JButton();
-        role = new javax.swing.JComboBox<>();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -130,9 +136,13 @@ public class guiFrame extends javax.swing.JFrame {
 
         jLabel4.setText("GRAD DATE");
 
-        date.setModel(new javax.swing.SpinnerDateModel());
-
         jLabel5.setText("GRAD GRADE");
+
+        jLabel6.setText("NQT MARKS");
+
+        jLabel7.setText("APPLY FOR ROLE");
+
+        dt.setModel(new javax.swing.SpinnerDateModel());
 
         grade.setModel(new javax.swing.SpinnerNumberModel(0.0d, 0.0d, 10.0d, 0.1d));
 
@@ -142,10 +152,6 @@ public class guiFrame extends javax.swing.JFrame {
                 nqtStateChanged(evt);
             }
         });
-
-        jLabel6.setText("NQT MARKS");
-
-        jLabel7.setText("APPLY FOR ROLE");
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -186,7 +192,7 @@ public class guiFrame extends javax.swing.JFrame {
                                     .addComponent(id)
                                     .addComponent(jLabel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(jLabel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                    .addComponent(date, javax.swing.GroupLayout.DEFAULT_SIZE, 203, Short.MAX_VALUE)
+                                    .addComponent(dt, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE)
                                     .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(grade)
                                     .addComponent(nqt)
@@ -194,7 +200,7 @@ public class guiFrame extends javax.swing.JFrame {
                                     .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                                     .addComponent(role, 0, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 405, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 441, javax.swing.GroupLayout.PREFERRED_SIZE)))
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
@@ -215,7 +221,7 @@ public class guiFrame extends javax.swing.JFrame {
                         .addGap(18, 18, 18)
                         .addComponent(jLabel4)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(date, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(dt, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(18, 18, 18)
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -259,8 +265,8 @@ public class guiFrame extends javax.swing.JFrame {
             }
             String canName = name.getText();
 
-            java.util.Date javaDate = (java.util.Date) date.getValue();
-            Date gradDate = new Date(javaDate.getTime());
+            SpinnerDateModel sdm = (SpinnerDateModel) dt.getModel();
+            Date gradDate = sdm.getDate();
 
             double canGrade = Double.parseDouble(grade.getValue().toString());
             int nqtMarks = Integer.parseInt(nqt.getValue().toString());
@@ -283,7 +289,7 @@ public class guiFrame extends javax.swing.JFrame {
             PreparedStatement ps2 = con.prepareStatement(sql);
             ps2.setInt(1, canId);
             ps2.setString(2, canName);
-            ps2.setDate(3, gradDate);
+            ps2.setObject(3, gradDate);
             ps2.setDouble(4, canGrade);
             ps2.setInt(5, nqtMarks);
             ps2.setInt(6, roleCode);
@@ -305,18 +311,10 @@ public class guiFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JSpinner date;
+    private javax.swing.JSpinner dt;
     private javax.swing.JSpinner grade;
     private javax.swing.JSpinner id;
     private javax.swing.JButton jButton1;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
     private javax.swing.JTextField name;
     private javax.swing.JSpinner nqt;
