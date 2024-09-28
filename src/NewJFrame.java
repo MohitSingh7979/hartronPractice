@@ -1,7 +1,11 @@
-import java.util.*;
-import javax.swing.*;
-import java.time.*;
-import java.time.temporal.*;
+
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.Calendar;
+import java.util.Date;
+import javax.swing.JSpinner;
+import javax.swing.SpinnerDateModel;
 
 public class NewJFrame extends javax.swing.JFrame {
 
@@ -40,9 +44,9 @@ public class NewJFrame extends javax.swing.JFrame {
 
         jLabel1.setText("name");
 
-        jLabel2.setText("Date 1");
+        jLabel2.setText("OLD DATE");
 
-        jLabel3.setText("Date 2");
+        jLabel3.setText("NEW DATE");
 
         btnAdd.setText("Add");
 
@@ -110,16 +114,33 @@ public class NewJFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void dateToStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_dateToStateChanged
-
-        chronoDate();
+//        chronoDate();
+        datePassedOrNot();
 
     }//GEN-LAST:event_dateToStateChanged
 
     private void dateFromStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_dateFromStateChanged
-        // TODO add your handling code here:
-                chronoDate();
+//        chronoDate();
+        datePassedOrNot();
 
     }//GEN-LAST:event_dateFromStateChanged
+
+    private void datePassedOrNot() {
+
+        Calendar oldDate = Calendar.getInstance();
+        Date javaFromDate = (java.util.Date) dateFrom.getValue();
+        oldDate.setTime(javaFromDate);
+
+        Calendar newDate = Calendar.getInstance();
+        Date javaToDate = (java.util.Date) dateTo.getValue();
+        newDate.setTime(javaToDate);
+        System.out.println(oldDate.get(Calendar.LONG_FORMAT));
+//        if (oldYear>newYear) {
+//            System.out.println("Passed");
+//        }else{
+//            System.out.println("Not Passed");
+//        }
+    }
 
     private void chronoDate() {
         Date fromDate = (Date) dateFrom.getValue();
