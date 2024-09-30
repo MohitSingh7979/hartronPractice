@@ -3,6 +3,7 @@ import java.sql.*;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.SpinnerDateModel;
 import javax.swing.SpinnerModel;
 import javax.swing.table.DefaultTableModel;
@@ -149,11 +150,16 @@ public class pizzaFrame extends javax.swing.JFrame {
 
         pizza.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
-        quantity.setModel(new javax.swing.SpinnerNumberModel(0, 0, null, 1));
+        quantity.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
 
         orderAt.setModel(new javax.swing.SpinnerDateModel());
 
         deliveredAt.setModel(new javax.swing.SpinnerDateModel());
+        deliveredAt.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                deliveredAtStateChanged(evt);
+            }
+        });
 
         report1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -300,35 +306,44 @@ public class pizzaFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void orderPizzaBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_orderPizzaBtnActionPerformed
-        int id = Integer.parseInt(orderId.getValue().toString());
-
-        String pizzaItem = pizza.getSelectedItem().toString();
-        String[] pizzaSplit = pizzaItem.split("-");
-        int pizzaId = Integer.parseInt(pizzaSplit[0]);
-
-        int orderQuantity = Integer.parseInt(quantity.getValue().toString());
-
-        SpinnerDateModel orderAtModel = (SpinnerDateModel) orderAt.getModel();
-        Date orderDate = orderAtModel.getDate();
-
-        SpinnerDateModel deliveriedAtModel = (SpinnerDateModel) deliveredAt.getModel();
-        Date deliveredDate = deliveriedAtModel.getDate();
-
-        int delCharges = Integer.parseInt(deliveryCharges.getValue().toString());
-        int total = Integer.parseInt(customerTotal.getValue().toString());
-        int savedMoney = Integer.parseInt(saving.getValue().toString());
-
-        sql = "INSERT INTO `pizza_cafe`.`order_details` ("
-                + "     `id`, "
-                + "     `pizza_id`, "
-                + "     `quantity`, "
-                + "     `order_at`, "
-                + "     `delivered_at`, "
-                + "     `delivery_charge`, "
-                + "     `customer_total`, "
-                + "     `saving`"
-                + " ) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
         try {
+            int id = Integer.parseInt(orderId.getValue().toString());
+            sql = "SELECT id FROM order_details where id = ?";
+            PreparedStatement idps = con.prepareStatement(sql);
+            idps.setInt(1, id);
+            ResultSet idrs = idps.executeQuery();
+            if (idrs.next()) {
+                JOptionPane.showMessageDialog(rootPane, "change id");
+                return;
+            }
+
+            String pizzaItem = pizza.getSelectedItem().toString();
+            String[] pizzaSplit = pizzaItem.split("-");
+            int pizzaId = Integer.parseInt(pizzaSplit[0]);
+
+            int orderQuantity = Integer.parseInt(quantity.getValue().toString());
+
+            SpinnerDateModel orderAtModel = (SpinnerDateModel) orderAt.getModel();
+            Date orderDate = orderAtModel.getDate();
+
+            SpinnerDateModel deliveriedAtModel = (SpinnerDateModel) deliveredAt.getModel();
+            Date deliveredDate = deliveriedAtModel.getDate();
+
+            int delCharges = Integer.parseInt(deliveryCharges.getValue().toString());
+            int total = Integer.parseInt(customerTotal.getValue().toString());
+            int savedMoney = Integer.parseInt(saving.getValue().toString());
+
+            sql = "INSERT INTO `pizza_cafe`.`order_details` ("
+                    + "     `id`, "
+                    + "     `pizza_id`, "
+                    + "     `quantity`, "
+                    + "     `order_at`, "
+                    + "     `delivered_at`, "
+                    + "     `delivery_charge`, "
+                    + "     `customer_total`, "
+                    + "     `saving`"
+                    + " ) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+
             PreparedStatement inps = con.prepareStatement(sql);
             inps.setObject(1, id);
             inps.setObject(2, pizzaId);
@@ -346,6 +361,11 @@ public class pizzaFrame extends javax.swing.JFrame {
             Logger.getLogger(pizzaFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_orderPizzaBtnActionPerformed
+
+    private void deliveredAtStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_deliveredAtStateChanged
+
+
+    }//GEN-LAST:event_deliveredAtStateChanged
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
