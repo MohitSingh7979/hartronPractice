@@ -250,6 +250,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Order Pizza"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="orderPizzaBtnActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JSpinner" name="orderId">
     </Component>
@@ -314,6 +317,7 @@
                 <Column editable="true" title="SAVING" type="java.lang.Object"/>
               </Table>
             </Property>
+            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
         </Component>
       </SubComponents>
@@ -355,6 +359,7 @@
                 <Column editable="true" title="CUSTOMER SAVING" type="java.lang.Object"/>
               </Table>
             </Property>
+            <Property name="enabled" type="boolean" value="false"/>
           </Properties>
         </Component>
       </SubComponents>

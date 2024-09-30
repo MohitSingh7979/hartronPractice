@@ -3,14 +3,68 @@ import java.sql.*;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SpinnerDateModel;
+import javax.swing.SpinnerModel;
+import javax.swing.table.DefaultTableModel;
 
 public class pizzaFrame extends javax.swing.JFrame {
-Connection con;
-        String sql ;
+
+    Connection con;
+    String sql;
+
     public pizzaFrame() {
         initComponents();
         initConn();
         fillPizza();
+        showTable1();
+        showTable2();
+    }
+
+    private void showTable2() {
+        sql = "SELECT p.name,o.id,delivered_at, saving FROM order_details o join pizza_master p on o.pizza_id = p.id order by saving desc";
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            DefaultTableModel dtm = (DefaultTableModel) report2.getModel();
+            dtm.setRowCount(0);
+            while (rs.next()) {
+                Object[] data = new Object[]{
+                    rs.getString(1),
+                    rs.getString(2),
+                    rs.getString(3),
+                    rs.getString(4),};
+                dtm.addRow(data);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(pizzaFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void showTable1() {
+        sql = "SELECT"
+                + "      p.name,"
+                + "     quantity,"
+                + "     cost,"
+                + "     saving"
+                + " FROM order_details o join pizza_master p on o.pizza_id = p.id order by saving desc";
+        try {
+            PreparedStatement ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            DefaultTableModel dtm = (DefaultTableModel) report1.getModel();
+            dtm.setRowCount(0);
+            while (rs.next()) {
+                Object[] data = new Object[]{
+                    rs.getString(1),
+                    rs.getString(2),
+                    rs.getString(3),
+                    rs.getString(4),};
+                dtm.addRow(data);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(pizzaFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void fillPizza() {
@@ -20,7 +74,7 @@ Connection con;
             ResultSet rs = ps.executeQuery();
             pizza.removeAllItems();
             while (rs.next()) {
-                pizza.addItem(("%s-%s").formatted(rs.getString(1),rs.getString(2)));
+                pizza.addItem(("%s-%s").formatted(rs.getString(1), rs.getString(2)));
             }
         } catch (SQLException ex) {
             Logger.getLogger(pizzaFrame.class.getName()).log(Level.SEVERE, null, ex);
@@ -29,13 +83,13 @@ Connection con;
 
     private void initConn() {
         try {
-            con =DriverManager.getConnection("jdbc:mysql://localhost:3306/pizza_cafe", "root", "root");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/pizza_cafe", "root", "root");
         } catch (SQLException ex) {
             Logger.getLogger(pizzaFrame.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
-        @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
@@ -87,6 +141,11 @@ Connection con;
         jLabel9.setText("SAVING");
 
         orderPizzaBtn.setText("Order Pizza");
+        orderPizzaBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                orderPizzaBtnActionPerformed(evt);
+            }
+        });
 
         pizza.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
 
@@ -107,6 +166,7 @@ Connection con;
                 "PIZZA NAME", "QUANTITY", "COST", "SAVING"
             }
         ));
+        report1.setEnabled(false);
         jScrollPane1.setViewportView(report1);
 
         jLabel10.setText("REPORT 1");
@@ -124,6 +184,7 @@ Connection con;
                 "PIZZA NAME", "LATE ORDERS", "ON TIME ORDERS", "CUSTOMER SAVING"
             }
         ));
+        report2.setEnabled(false);
         jScrollPane2.setViewportView(report2);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -237,6 +298,54 @@ Connection con;
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void orderPizzaBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_orderPizzaBtnActionPerformed
+        int id = Integer.parseInt(orderId.getValue().toString());
+
+        String pizzaItem = pizza.getSelectedItem().toString();
+        String[] pizzaSplit = pizzaItem.split("-");
+        int pizzaId = Integer.parseInt(pizzaSplit[0]);
+
+        int orderQuantity = Integer.parseInt(quantity.getValue().toString());
+
+        SpinnerDateModel orderAtModel = (SpinnerDateModel) orderAt.getModel();
+        Date orderDate = orderAtModel.getDate();
+
+        SpinnerDateModel deliveriedAtModel = (SpinnerDateModel) deliveredAt.getModel();
+        Date deliveredDate = deliveriedAtModel.getDate();
+
+        int delCharges = Integer.parseInt(deliveryCharges.getValue().toString());
+        int total = Integer.parseInt(customerTotal.getValue().toString());
+        int savedMoney = Integer.parseInt(saving.getValue().toString());
+
+        sql = "INSERT INTO `pizza_cafe`.`order_details` ("
+                + "     `id`, "
+                + "     `pizza_id`, "
+                + "     `quantity`, "
+                + "     `order_at`, "
+                + "     `delivered_at`, "
+                + "     `delivery_charge`, "
+                + "     `customer_total`, "
+                + "     `saving`"
+                + " ) VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+        try {
+            PreparedStatement inps = con.prepareStatement(sql);
+            inps.setObject(1, id);
+            inps.setObject(2, pizzaId);
+            inps.setObject(3, orderQuantity);
+            inps.setObject(4, orderDate);
+            inps.setObject(5, deliveredDate);
+            inps.setObject(6, delCharges);
+            inps.setObject(7, total);
+            inps.setObject(8, savedMoney);
+            inps.executeUpdate();
+            showTable1();
+            showTable2();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(pizzaFrame.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_orderPizzaBtnActionPerformed
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
