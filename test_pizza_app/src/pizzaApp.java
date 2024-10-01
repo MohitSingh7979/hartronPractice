@@ -1,31 +1,69 @@
+
 import java.awt.Color;
 import java.sql.*;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SpinnerModel;
 
 public class pizzaApp extends javax.swing.JFrame {
-Connection con;
-PreparedStatement ps;
-String sql;
+
+    Connection con;
+    PreparedStatement ps;
+    String sql;
 
     public pizzaApp() {
         initComponents();
         initConnection();
         fillPizzaName();
+        sync();
 
     }
 
+    private void sync() {
+        try {
+            if (pizza.getSelectedItem() != null) {
+
+                int quan = (int) quantity.getValue();
+
+                String[] pizzaItem = pizza.getSelectedItem().toString().split("-");
+                int pizzaId = Integer.parseInt(pizzaItem[0]);
+
+                sql = "SELECT price*? as total,price,cost FROM pizza_master pm where id = ?";
+                ps = con.prepareStatement(sql);
+                ps.setInt(1, quan);
+                ps.setInt(2, pizzaId);
+                ResultSet rs = ps.executeQuery();
+                rs.next();
+                double total = rs.getDouble(1);
+                double price = rs.getDouble(2);
+                double costVal = rs.getDouble(3);
+
+                double delCharge = total < 499.0 ? 40 : 0;
+                double customerCost = total + delCharge;
+
+                double savVal = quan * (price - costVal);
+
+                charges.setValue(delCharge);
+                cusTotal.setValue(customerCost);
+                saving.setValue(savVal);
+
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(pizzaApp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
     private void fillPizzaName() {
-        boolean isVeg = veg.isSelected() ;
-        sql="SELECT * FROM pizza_master pm where is_veg = ?";
+        boolean isVeg = veg.isSelected();
+        sql = "SELECT * FROM pizza_master pm where is_veg = ?";
         try {
             ps = con.prepareStatement(sql);
             ps.setBoolean(1, isVeg);
             ResultSet rs = ps.executeQuery();
             pizza.removeAllItems();
             while (rs.next()) {
-                pizza.addItem(("%s-%s").formatted(rs.getString(1),rs.getString(2)));
+                pizza.addItem(("%s-%s").formatted(rs.getString(1), rs.getString(2)));
             }
         } catch (SQLException ex) {
             Logger.getLogger(pizzaApp.class.getName()).log(Level.SEVERE, null, ex);
@@ -34,7 +72,7 @@ String sql;
 
     private void initConnection() {
         try {
-            con=DriverManager.getConnection("jdbc:mysql://localhost:3306/test_pizza_app", "root", "root");
+            con = DriverManager.getConnection("jdbc:mysql://localhost:3306/test_pizza_app", "root", "root");
         } catch (SQLException ex) {
             Logger.getLogger(pizzaApp.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -92,6 +130,27 @@ String sql;
         });
 
         pizza.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        pizza.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                pizzaItemStateChanged(evt);
+            }
+        });
+        pizza.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                pizzaActionPerformed(evt);
+            }
+        });
+
+        quantity.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
+        quantity.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                quantityStateChanged(evt);
+            }
+        });
+
+        orderedAt.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(1727774919854L), null, null, java.util.Calendar.MINUTE));
+
+        deliveredAt.setModel(new javax.swing.SpinnerDateModel(new java.util.Date(1727774933266L), null, null, java.util.Calendar.MINUTE));
 
         report1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -239,50 +298,65 @@ String sql;
 
     private void vegStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_vegStateChanged
         fillPizzaName();
+        sync();
+
     }//GEN-LAST:event_vegStateChanged
 
     private void orderPizzaBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_orderPizzaBtnActionPerformed
-    try {
-        int orderId = (int) id.getValue();
-        sql="SELECT * FROM order_details od where id = ?";
-        ps=con.prepareStatement(sql);
-        ps.setInt(1, orderId);
-        ResultSet rs = ps.executeQuery();
-        if(rs.next()){
-            id.setBackground(Color.red);
-            return;
+        try {
+            int orderId = (int) id.getValue();
+            sql = "SELECT * FROM order_details od where id = ?";
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                id.setBackground(Color.red);
+                return;
+            }
+
+            String[] pizzaItem = pizza.getSelectedItem().toString().split("-");
+            int pizzaId = Integer.parseInt(pizzaItem[0]);
+
+            sql = "INSERT INTO `test_pizza_app`.`order_details` ("
+                    + "     `id`, "
+                    + "     `pizza_id`, "
+                    + "     `quantity`, "
+                    + "     `ordered_at`, "
+                    + "     `delivered_at`, "
+                    + "     `delivery_charges`, "
+                    + "     `customer_total`, "
+                    + "     `saving`"
+                    + " ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, orderId);
+            ps.setInt(2, pizzaId);
+            ps.setObject(3, quantity.getValue());
+            ps.setObject(4, orderedAt.getValue());
+            ps.setObject(5, deliveredAt.getValue());
+            ps.setObject(6, charges.getValue());
+            ps.setObject(7, cusTotal.getValue());
+            ps.setObject(8, saving.getValue());
+            ps.executeUpdate();
+
+        } catch (SQLException ex) {
+            Logger.getLogger(pizzaApp.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        String[] pizzaItem = pizza.getSelectedItem().toString().split("-");
-        int pizzaId = Integer.parseInt(pizzaItem[0]);
-
-        sql="INSERT INTO `test_pizza_app`.`order_details` ("
-                + "     `id`, "
-                + "     `pizza_id`, "
-                + "     `quantity`, "
-                + "     `ordered_at`, "
-                + "     `delivered_at`, "
-                + "     `delivery_charges`, "
-                + "     `customer_total`, "
-                + "     `saving`"
-                + " ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-        ps = con.prepareStatement(sql);
-        ps.setInt(1, orderId);
-        ps.setInt(2, pizzaId);
-        ps.setObject(3, quantity.getValue());
-        ps.setObject(4, orderedAt.getValue());
-        ps.setObject(5, deliveredAt.getValue());
-        ps.setObject(6, charges.getValue());
-        ps.setObject(7, cusTotal.getValue());
-        ps.setObject(8, saving.getValue());
-        ps.executeUpdate();
-
-    } catch (SQLException ex) {
-        Logger.getLogger(pizzaApp.class.getName()).log(Level.SEVERE, null, ex);
-    }
 
 
     }//GEN-LAST:event_orderPizzaBtnActionPerformed
+
+    private void pizzaItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_pizzaItemStateChanged
+        sync();
+    }//GEN-LAST:event_pizzaItemStateChanged
+
+    private void pizzaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_pizzaActionPerformed
+        sync();
+    }//GEN-LAST:event_pizzaActionPerformed
+
+    private void quantityStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_quantityStateChanged
+        sync();
+
+    }//GEN-LAST:event_quantityStateChanged
 
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
