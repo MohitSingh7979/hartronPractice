@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.sql.*;
 import java.util.Date;
 import java.util.logging.Level;
@@ -64,6 +65,8 @@ String sql;
         jTable1 = new javax.swing.JTable();
         javax.swing.JLabel jLabel8 = new javax.swing.JLabel();
         veg = new javax.swing.JCheckBox();
+        javax.swing.JLabel jLabel9 = new javax.swing.JLabel();
+        charges = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -125,6 +128,8 @@ String sql;
             }
         });
 
+        jLabel9.setText("DELIVERY CHARGES");
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -163,14 +168,18 @@ String sql;
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(deliveredAt, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
                             .addGroup(layout.createSequentialGroup()
-                                .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(cusTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addGroup(layout.createSequentialGroup()
                                 .addComponent(jLabel7, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(saving, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(orderPizzaBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(orderPizzaBtn, javax.swing.GroupLayout.PREFERRED_SIZE, 300, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(charges, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                    .addComponent(cusTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))))
                         .addGap(18, 18, 18)
                         .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 456, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
@@ -209,6 +218,10 @@ String sql;
                             .addComponent(deliveredAt, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                            .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(charges, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                             .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(cusTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 25, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addGap(18, 18, 18)
@@ -229,7 +242,46 @@ String sql;
     }//GEN-LAST:event_vegStateChanged
 
     private void orderPizzaBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_orderPizzaBtnActionPerformed
-        
+    try {
+        int orderId = (int) id.getValue();
+        sql="SELECT * FROM order_details od where id = ?";
+        ps=con.prepareStatement(sql);
+        ps.setInt(1, orderId);
+        ResultSet rs = ps.executeQuery();
+        if(rs.next()){
+            id.setBackground(Color.red);
+            return;
+        }
+
+        String[] pizzaItem = pizza.getSelectedItem().toString().split("-");
+        int pizzaId = Integer.parseInt(pizzaItem[0]);
+
+        sql="INSERT INTO `test_pizza_app`.`order_details` ("
+                + "     `id`, "
+                + "     `pizza_id`, "
+                + "     `quantity`, "
+                + "     `ordered_at`, "
+                + "     `delivered_at`, "
+                + "     `delivery_charges`, "
+                + "     `customer_total`, "
+                + "     `saving`"
+                + " ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        ps = con.prepareStatement(sql);
+        ps.setInt(1, orderId);
+        ps.setInt(2, pizzaId);
+        ps.setObject(3, quantity.getValue());
+        ps.setObject(4, orderedAt.getValue());
+        ps.setObject(5, deliveredAt.getValue());
+        ps.setObject(6, charges.getValue());
+        ps.setObject(7, cusTotal.getValue());
+        ps.setObject(8, saving.getValue());
+        ps.executeUpdate();
+
+    } catch (SQLException ex) {
+        Logger.getLogger(pizzaApp.class.getName()).log(Level.SEVERE, null, ex);
+    }
+
+
     }//GEN-LAST:event_orderPizzaBtnActionPerformed
 
     public static void main(String args[]) {
@@ -241,6 +293,7 @@ String sql;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JSpinner charges;
     private javax.swing.JSpinner cusTotal;
     private javax.swing.JSpinner deliveredAt;
     private javax.swing.JSpinner id;
