@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SpinnerModel;
+import javax.swing.table.DefaultTableModel;
 
 public class pizzaApp extends javax.swing.JFrame {
 
@@ -17,7 +18,86 @@ public class pizzaApp extends javax.swing.JFrame {
         initConnection();
         fillPizzaName();
         sync();
+        showReport1();
+          sql = "";
+        try {
+            ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
 
+            DefaultTableModel dtm = (DefaultTableModel) report2.getModel();
+            dtm.setRowCount(0);
+            while (rs.next()) {
+                Object[] data = new Object[]{
+                    rs.getObject(1),
+                    rs.getObject(2),
+                    rs.getObject(3),
+                    rs.getObject(4),};
+                dtm.addRow(data);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(pizzaApp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    private void sync() {
+        try {
+            if (pizza.getSelectedItem() != null) {
+
+                int quan = (int) quantity.getValue();
+
+                String[] pizzaItem = pizza.getSelectedItem().toString().split("-");
+                int pizzaId = Integer.parseInt(pizzaItem[0]);
+
+                sql = "SELECT price*? as total,price,cost FROM pizza_master pm where id = ?";
+                ps = con.prepareStatement(sql);
+                ps.setInt(1, quan);
+                ps.setInt(2, pizzaId);
+                ResultSet rs = ps.executeQuery();
+                rs.next();
+                double total = rs.getDouble(1);
+                double price = rs.getDouble(2);
+                double costVal = rs.getDouble(3);
+
+                double delCharge = total < 499.0 ? 40 : 0;
+                double customerCost = total + delCharge;
+
+                double savVal = quan * (price - costVal);
+
+                charges.setValue(delCharge);
+                cusTotal.setValue(customerCost);
+                saving.setValue(savVal);
+
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(pizzaApp.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }
+
+    private void showReport1() {
+        sql = "SELECT"
+                + "      name,"
+                + "     quantity,"
+                + "     cost,"
+                + "     saving "
+                + " FROM order_details od  join pizza_master pm on pizza_id=pm.id where timestampdiff(minute, ordered_at, delivered_at)<=34";
+        try {
+            ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            DefaultTableModel dtm = (DefaultTableModel) report1.getModel();
+            dtm.setRowCount(0);
+            while (rs.next()) {
+                Object[] data = new Object[]{
+                    rs.getObject(1),
+                    rs.getObject(2),
+                    rs.getObject(3),
+                    rs.getObject(4),};
+                dtm.addRow(data);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(pizzaApp.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void sync() {
@@ -100,7 +180,7 @@ public class pizzaApp extends javax.swing.JFrame {
         javax.swing.JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
         report1 = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        report2 = new javax.swing.JTable();
         javax.swing.JLabel jLabel8 = new javax.swing.JLabel();
         veg = new javax.swing.JCheckBox();
         javax.swing.JLabel jLabel9 = new javax.swing.JLabel();
@@ -126,6 +206,12 @@ public class pizzaApp extends javax.swing.JFrame {
         orderPizzaBtn.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 orderPizzaBtnActionPerformed(evt);
+            }
+        });
+
+        id.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                idStateChanged(evt);
             }
         });
 
@@ -165,7 +251,7 @@ public class pizzaApp extends javax.swing.JFrame {
         ));
         jScrollPane1.setViewportView(report1);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        report2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
                 {null, null, null, null},
@@ -176,7 +262,7 @@ public class pizzaApp extends javax.swing.JFrame {
                 "PIZZA NAME", "LATE ORDERS", "ON TIME ORDERS", "CUSTOMER SAVING"
             }
         ));
-        jScrollPane2.setViewportView(jTable1);
+        jScrollPane2.setViewportView(report2);
 
         jLabel8.setText("VEG");
 
@@ -337,6 +423,7 @@ public class pizzaApp extends javax.swing.JFrame {
             ps.setObject(7, cusTotal.getValue());
             ps.setObject(8, saving.getValue());
             ps.executeUpdate();
+            showReport1();
 
         } catch (SQLException ex) {
             Logger.getLogger(pizzaApp.class.getName()).log(Level.SEVERE, null, ex);
@@ -358,6 +445,10 @@ public class pizzaApp extends javax.swing.JFrame {
 
     }//GEN-LAST:event_quantityStateChanged
 
+    private void idStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_idStateChanged
+        // TODO add your handling code here:
+    }//GEN-LAST:event_idStateChanged
+
     public static void main(String args[]) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -372,12 +463,12 @@ public class pizzaApp extends javax.swing.JFrame {
     private javax.swing.JSpinner deliveredAt;
     private javax.swing.JSpinner id;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
     private javax.swing.JButton orderPizzaBtn;
     private javax.swing.JSpinner orderedAt;
     private javax.swing.JComboBox<String> pizza;
     private javax.swing.JSpinner quantity;
     private javax.swing.JTable report1;
+    private javax.swing.JTable report2;
     private javax.swing.JSpinner saving;
     private javax.swing.JCheckBox veg;
     // End of variables declaration//GEN-END:variables
