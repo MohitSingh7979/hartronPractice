@@ -19,7 +19,15 @@ public class pizzaApp extends javax.swing.JFrame {
         fillPizzaName();
         sync();
         showReport1();
-          sql = "";
+        showReport2();
+    }
+
+    private void showReport2() {
+        sql = "SELECT"
+                + "     name,"
+                + "     sum(timestampdiff(minute, ordered_at, delivered_at)<=34) as ontime,"
+                + "     sum(timestampdiff(minute, ordered_at, delivered_at)>34) as offtime"
+                + " FROM order_details od  join pizza_master pm on pizza_id=pm.id group by name";
         try {
             ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
@@ -31,7 +39,9 @@ public class pizzaApp extends javax.swing.JFrame {
                     rs.getObject(1),
                     rs.getObject(2),
                     rs.getObject(3),
-                    rs.getObject(4),};
+//                    rs.getObject(4),
+                    0
+                };
                 dtm.addRow(data);
             }
         } catch (SQLException ex) {
@@ -76,7 +86,7 @@ public class pizzaApp extends javax.swing.JFrame {
 
     private void showReport1() {
         sql = "SELECT"
-                + "      name,"
+                + "     name,"
                 + "     quantity,"
                 + "     cost,"
                 + "     saving "
@@ -94,40 +104,6 @@ public class pizzaApp extends javax.swing.JFrame {
                     rs.getObject(3),
                     rs.getObject(4),};
                 dtm.addRow(data);
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(pizzaApp.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-
-    private void sync() {
-        try {
-            if (pizza.getSelectedItem() != null) {
-
-                int quan = (int) quantity.getValue();
-
-                String[] pizzaItem = pizza.getSelectedItem().toString().split("-");
-                int pizzaId = Integer.parseInt(pizzaItem[0]);
-
-                sql = "SELECT price*? as total,price,cost FROM pizza_master pm where id = ?";
-                ps = con.prepareStatement(sql);
-                ps.setInt(1, quan);
-                ps.setInt(2, pizzaId);
-                ResultSet rs = ps.executeQuery();
-                rs.next();
-                double total = rs.getDouble(1);
-                double price = rs.getDouble(2);
-                double costVal = rs.getDouble(3);
-
-                double delCharge = total < 499.0 ? 40 : 0;
-                double customerCost = total + delCharge;
-
-                double savVal = quan * (price - costVal);
-
-                charges.setValue(delCharge);
-                cusTotal.setValue(customerCost);
-                saving.setValue(savVal);
-
             }
         } catch (SQLException ex) {
             Logger.getLogger(pizzaApp.class.getName()).log(Level.SEVERE, null, ex);
