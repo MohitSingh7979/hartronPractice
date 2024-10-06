@@ -184,9 +184,6 @@
           <SpinnerModel initial="1" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
         </Property>
       </Properties>
-      <Events>
-        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="ticketFocusGained"/>
-      </Events>
     </Component>
     <Component class="javax.swing.JSpinner" name="date">
       <Properties>
@@ -201,6 +198,9 @@
           <SpinnerModel initial="1" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="daysStateChanged"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JSpinner" name="passan">
       <Properties>
@@ -208,6 +208,9 @@
           <SpinnerModel initial="1" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="stateChanged" listener="javax.swing.event.ChangeListener" parameters="javax.swing.event.ChangeEvent" handler="passanStateChanged"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JCheckBox" name="returnTickets">
       <Properties>

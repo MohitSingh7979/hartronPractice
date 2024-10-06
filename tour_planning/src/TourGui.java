@@ -8,6 +8,7 @@ import java.sql.*;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -81,8 +82,12 @@ public class TourGui extends javax.swing.JFrame {
             ResultSet rs = ps.executeQuery();
             rs.next();
             double cost = rs.getDouble(1);
+            int passanger = Integer.parseInt(passan.getValue().toString());
+            int totalDays = Integer.parseInt(days.getValue().toString());
 
             boolean ret = returnTickets.isSelected();
+            cost = (passanger+totalDays)*cost;
+            
             double retCost = cost + (cost * 1.10);
             cost = ret ? retCost : cost;
             totalCost.setText(String.valueOf(cost));
@@ -174,17 +179,22 @@ public class TourGui extends javax.swing.JFrame {
         });
 
         ticket.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
-        ticket.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                ticketFocusGained(evt);
-            }
-        });
 
         date.setModel(new javax.swing.SpinnerDateModel());
 
         days.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
+        days.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                daysStateChanged(evt);
+            }
+        });
 
         passan.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
+        passan.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                passanStateChanged(evt);
+            }
+        });
 
         returnTickets.setText("Yes, I wanna Return");
         returnTickets.addActionListener(new java.awt.event.ActionListener() {
@@ -309,12 +319,14 @@ public class TourGui extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void bookTicketBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bookTicketBtnActionPerformed
-        sql = "";
+        sql = "SELECT * FROM ticket_details where ticket_no = ?";
         try {
             ps = con.prepareStatement(sql);
+            ps.setObject(1, ticket.getValue());
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                ticket.setBackground(Color.red);
+JOptionPane.showMessageDialog(rootPane, "ticket id exists");
+                return;
             }
         } catch (SQLException ex) {
             Logger.getLogger(TourGui.class.getName()).log(Level.SEVERE, null, ex);
@@ -361,10 +373,15 @@ public class TourGui extends javax.swing.JFrame {
         fillCost();
     }//GEN-LAST:event_returnTicketsActionPerformed
 
-    private void ticketFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ticketFocusGained
+    private void daysStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_daysStateChanged
         // TODO add your handling code here:
-        ticket.setBackground(Color.white);
-    }//GEN-LAST:event_ticketFocusGained
+        fillCost();
+    }//GEN-LAST:event_daysStateChanged
+
+    private void passanStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_passanStateChanged
+        // TODO add your handling code here:
+        fillCost();
+    }//GEN-LAST:event_passanStateChanged
 
     /**
      * @param args the command line arguments
