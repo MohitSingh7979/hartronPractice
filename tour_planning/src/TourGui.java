@@ -7,15 +7,17 @@ import java.sql.*;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
  * @author mohit
  */
 public class TourGui extends javax.swing.JFrame {
-Connection con;
-PreparedStatement ps;
-String sql;
+
+    Connection con;
+    PreparedStatement ps;
+    String sql;
 
     /**
      * Creates new form TourGui
@@ -26,6 +28,48 @@ String sql;
         fillTour();
     }
 
+    void showReport2() {
+        try {
+            sql = "";
+            ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+
+            DefaultTableModel tm = (DefaultTableModel) report2.getModel();
+            tm.setRowCount(0);
+            while (rs.next()) {
+                Object[] data = new Object[]{
+                    rs.getObject(1),
+                    rs.getObject(2),};
+                tm.addRow(data);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(TourGui.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+        void showReport1(){
+               try {
+                sql = "";
+                ps = con.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery();
+
+                DefaultTableModel tm = (DefaultTableModel) report1.getModel();
+                tm.setRowCount(0);
+                while (rs.next()) {
+                    Object[] data = new Object[]{
+                        rs.getObject(1),
+                        rs.getObject(2),
+                        rs.getObject(3),
+                        rs.getObject(4),};
+                    tm.addRow(data);
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(TourGui.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+
+
     private void fillTour() {
         sql = "SELECT * FROM tour_master";
         try {
@@ -33,13 +77,12 @@ String sql;
             ResultSet rs = ps.executeQuery();
             tour.removeAllItems();
             while (rs.next()) {
-                tour.addItem(("%s-%s").formatted(rs.getString(1),rs.getString(2)));
+                tour.addItem(("%s-%s").formatted(rs.getString(1), rs.getString(2)));
             }
         } catch (SQLException ex) {
             Logger.getLogger(TourGui.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
-
 
     private void createConnection() {
         try {
@@ -96,10 +139,29 @@ String sql;
         jLabel7.setText("TOTAL COST");
 
         bookTicketBtn.setText("BOOK TOUR TICKETS");
+        bookTicketBtn.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bookTicketBtnActionPerformed(evt);
+            }
+        });
 
-        tour.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+        tour.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                tourActionPerformed(evt);
+            }
+        });
+
+        ticket.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
+
+        date.setModel(new javax.swing.SpinnerDateModel());
+
+        days.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
+
+        passan.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
 
         returnTickets.setText("Yes, I wanna Return");
+
+        totalCost.setEditable(false);
 
         report1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -213,6 +275,55 @@ String sql;
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void bookTicketBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bookTicketBtnActionPerformed
+        String[] tourStrings = tour.getSelectedItem().toString().split("-");
+        int tourId = Integer.parseInt(tourStrings[0]);
+
+        sql = "INSERT INTO `tour_planning`.`ticket_details` ("
+                + "     `ticket_no`, "
+                + "     `tour_id`, "
+                + "     `pickup_date`, "
+                + "     `days`, "
+                + "     `passangers`, "
+                + "     `return_ticket`, "
+                + "     `total_cost`"
+                + " ) VALUES (?, ?, ?, ?, ?, ?, ?);";
+        try {
+            ps = con.prepareStatement(sql);
+            ps.setObject(1, ticket.getValue());
+            ps.setObject(2, tourId);
+            ps.setObject(3, date.getValue());
+            ps.setObject(4, days.getValue());
+            ps.setObject(5, passan.getValue());
+            ps.setObject(6, returnTickets.isSelected());
+            ps.setObject(7, totalCost.getSelectedText());
+            int executeUpdate = ps.executeUpdate();
+//            showReport1();
+//            showReport2();
+        } catch (SQLException ex) {
+            Logger.getLogger(TourGui.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }//GEN-LAST:event_bookTicketBtnActionPerformed
+
+    private void tourActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tourActionPerformed
+        // TODO add your handling code here:
+          String[] tourStrings = tour.getSelectedItem().toString().split("-");
+        int tourId = Integer.parseInt(tourStrings[0]);
+        sql = "SELECT tour_cost FROM tour_master where tour_id = ?";
+        try {
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, tourId);
+              ResultSet rs = ps.executeQuery();
+              rs.next();
+              totalCost.setText(rs.getString(1));
+
+        } catch (SQLException ex) {
+            Logger.getLogger(TourGui.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+    }//GEN-LAST:event_tourActionPerformed
 
     /**
      * @param args the command line arguments
