@@ -184,6 +184,9 @@
           <SpinnerModel initial="1" minimum="1" numberType="java.lang.Integer" stepSize="1" type="number"/>
         </Property>
       </Properties>
+      <Events>
+        <EventHandler event="focusGained" listener="java.awt.event.FocusListener" parameters="java.awt.event.FocusEvent" handler="ticketFocusGained"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JSpinner" name="date">
       <Properties>
@@ -210,6 +213,9 @@
       <Properties>
         <Property name="text" type="java.lang.String" value="Yes, I wanna Return"/>
       </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="returnTicketsActionPerformed"/>
+      </Events>
     </Component>
     <Component class="javax.swing.JTextField" name="totalCost">
       <Properties>

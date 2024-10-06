@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 
+import java.awt.Color;
 import java.sql.*;
 import java.util.Date;
 import java.util.logging.Level;
@@ -26,11 +27,13 @@ public class TourGui extends javax.swing.JFrame {
         initComponents();
         createConnection();
         fillTour();
+        showReport1();
+        showReport2();
     }
 
     void showReport2() {
         try {
-            sql = "";
+            sql = "SELECT tour_name,sum(total_cost) FROM ticket_details td join tour_master tm on td.tour_id = tm.tour_id group by tour_name";
             ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
 
@@ -47,28 +50,47 @@ public class TourGui extends javax.swing.JFrame {
         }
     }
 
-        void showReport1(){
-               try {
-                sql = "";
-                ps = con.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery();
+    void showReport1() {
+        try {
+            sql = "SELECT ticket_no,tour_name,passangers,total_cost FROM ticket_details td join tour_master tm on td.tour_id = tm.tour_id where return_ticket = 0";
+            ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
 
-                DefaultTableModel tm = (DefaultTableModel) report1.getModel();
-                tm.setRowCount(0);
-                while (rs.next()) {
-                    Object[] data = new Object[]{
-                        rs.getObject(1),
-                        rs.getObject(2),
-                        rs.getObject(3),
-                        rs.getObject(4),};
-                    tm.addRow(data);
-                }
-            } catch (SQLException ex) {
-                Logger.getLogger(TourGui.class.getName()).log(Level.SEVERE, null, ex);
+            DefaultTableModel tm = (DefaultTableModel) report1.getModel();
+            tm.setRowCount(0);
+            while (rs.next()) {
+                Object[] data = new Object[]{
+                    rs.getObject(1),
+                    rs.getObject(2),
+                    rs.getObject(3),
+                    rs.getObject(4),};
+                tm.addRow(data);
             }
+        } catch (SQLException ex) {
+            Logger.getLogger(TourGui.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
 
+    void fillCost() {
+        String[] tourStrings = tour.getSelectedItem().toString().split("-");
+        int tourId = Integer.parseInt(tourStrings[0]);
+        sql = "SELECT tour_cost FROM tour_master where tour_id = ?";
+        try {
+            ps = con.prepareStatement(sql);
+            ps.setInt(1, tourId);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            double cost = rs.getDouble(1);
 
+            boolean ret = returnTickets.isSelected();
+            double retCost = cost + (cost * 1.10);
+            cost = ret ? retCost : cost;
+            totalCost.setText(String.valueOf(cost));
+
+        } catch (SQLException ex) {
+            Logger.getLogger(TourGui.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 
     private void fillTour() {
         sql = "SELECT * FROM tour_master";
@@ -152,6 +174,11 @@ public class TourGui extends javax.swing.JFrame {
         });
 
         ticket.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
+        ticket.addFocusListener(new java.awt.event.FocusAdapter() {
+            public void focusGained(java.awt.event.FocusEvent evt) {
+                ticketFocusGained(evt);
+            }
+        });
 
         date.setModel(new javax.swing.SpinnerDateModel());
 
@@ -160,6 +187,11 @@ public class TourGui extends javax.swing.JFrame {
         passan.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
 
         returnTickets.setText("Yes, I wanna Return");
+        returnTickets.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                returnTicketsActionPerformed(evt);
+            }
+        });
 
         totalCost.setEditable(false);
 
@@ -277,6 +309,17 @@ public class TourGui extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void bookTicketBtnActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bookTicketBtnActionPerformed
+        sql = "";
+        try {
+            ps = con.prepareStatement(sql);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                ticket.setBackground(Color.red);
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(TourGui.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         String[] tourStrings = tour.getSelectedItem().toString().split("-");
         int tourId = Integer.parseInt(tourStrings[0]);
 
@@ -299,8 +342,8 @@ public class TourGui extends javax.swing.JFrame {
             ps.setObject(6, returnTickets.isSelected());
             ps.setObject(7, totalCost.getSelectedText());
             int executeUpdate = ps.executeUpdate();
-//            showReport1();
-//            showReport2();
+            showReport1();
+            showReport2();
         } catch (SQLException ex) {
             Logger.getLogger(TourGui.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -309,21 +352,19 @@ public class TourGui extends javax.swing.JFrame {
 
     private void tourActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tourActionPerformed
         // TODO add your handling code here:
-          String[] tourStrings = tour.getSelectedItem().toString().split("-");
-        int tourId = Integer.parseInt(tourStrings[0]);
-        sql = "SELECT tour_cost FROM tour_master where tour_id = ?";
-        try {
-            ps = con.prepareStatement(sql);
-            ps.setInt(1, tourId);
-              ResultSet rs = ps.executeQuery();
-              rs.next();
-              totalCost.setText(rs.getString(1));
-
-        } catch (SQLException ex) {
-            Logger.getLogger(TourGui.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        fillCost();
 
     }//GEN-LAST:event_tourActionPerformed
+
+    private void returnTicketsActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_returnTicketsActionPerformed
+        // TODO add your handling code here:
+        fillCost();
+    }//GEN-LAST:event_returnTicketsActionPerformed
+
+    private void ticketFocusGained(java.awt.event.FocusEvent evt) {//GEN-FIRST:event_ticketFocusGained
+        // TODO add your handling code here:
+        ticket.setBackground(Color.white);
+    }//GEN-LAST:event_ticketFocusGained
 
     /**
      * @param args the command line arguments
