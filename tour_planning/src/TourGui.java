@@ -87,7 +87,7 @@ public class TourGui extends javax.swing.JFrame {
 
             boolean ret = returnTickets.isSelected();
             cost = (passanger+totalDays)*cost;
-            
+
             double retCost = cost + (cost * 1.10);
             cost = ret ? retCost : cost;
             totalCost.setText(String.valueOf(cost));
@@ -352,8 +352,9 @@ JOptionPane.showMessageDialog(rootPane, "ticket id exists");
             ps.setObject(4, days.getValue());
             ps.setObject(5, passan.getValue());
             ps.setObject(6, returnTickets.isSelected());
-            ps.setObject(7, totalCost.getSelectedText());
+            ps.setObject(7, totalCost.getText());
             int executeUpdate = ps.executeUpdate();
+
             showReport1();
             showReport2();
         } catch (SQLException ex) {
