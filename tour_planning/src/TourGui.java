@@ -34,7 +34,13 @@ public class TourGui extends javax.swing.JFrame {
 
     void showReport2() {
         try {
-            sql = "SELECT tour_name,sum(total_cost) FROM ticket_details td join tour_master tm on td.tour_id = tm.tour_id group by tour_name";
+            sql = "SELECT "
+                    + "     tour_name,"
+                    + "     sum(total_cost) "
+                    + " FROM ticket_details td "
+                    + " join tour_master tm "
+                    + " on td.tour_id = tm.tour_id "
+                    + " group by tour_name";
             ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
 
@@ -54,7 +60,15 @@ public class TourGui extends javax.swing.JFrame {
     void showReport1() {
 
         try {
-            sql = "SELECT ticket_no,tour_name,passangers,total_cost FROM ticket_details td join tour_master tm on td.tour_id = tm.tour_id where return_ticket = 0";
+            sql = "SELECT "
+                    + "     ticket_no,"
+                    + "     tour_name,"
+                    + "     passangers,"
+                    + "     total_cost "
+                    + " FROM ticket_details td "
+                    + " join tour_master tm "
+                    + " on td.tour_id = tm.tour_id "
+                    + " where return_ticket = 0";
             ps = con.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
 
@@ -77,12 +91,17 @@ public class TourGui extends javax.swing.JFrame {
     void fillCost() {
         String[] tourStrings = tour.getSelectedItem().toString().split("-");
         int tourId = Integer.parseInt(tourStrings[0]);
-        sql = "SELECT tour_cost FROM tour_master where tour_id = ?";
+
+        sql = "SELECT "
+                + "     tour_cost "
+                + " FROM tour_master "
+                + " where tour_id = ?";
         try {
             ps = con.prepareStatement(sql);
             ps.setInt(1, tourId);
             ResultSet rs = ps.executeQuery();
             rs.next();
+
             double cost = rs.getDouble(1);
             int passanger =(int) passan.getValue();
             int totalDays = (int) days.getValue();
