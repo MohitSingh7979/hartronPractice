@@ -41,14 +41,14 @@
                                   <Component id="jLabel7" pref="150" max="32767" attributes="0"/>
                               </Group>
                               <EmptySpace max="-2" attributes="0"/>
-                              <Group type="103" groupAlignment="0" attributes="0">
-                                  <Component id="tour" min="-2" pref="150" max="-2" attributes="0"/>
-                                  <Component id="ticket" min="-2" pref="150" max="-2" attributes="0"/>
-                                  <Component id="date" min="-2" pref="150" max="-2" attributes="0"/>
-                                  <Component id="days" min="-2" pref="150" max="-2" attributes="0"/>
-                                  <Component id="passan" min="-2" pref="150" max="-2" attributes="0"/>
-                                  <Component id="returnTickets" min="-2" pref="150" max="-2" attributes="0"/>
-                                  <Component id="totalCost" min="-2" pref="150" max="-2" attributes="0"/>
+                              <Group type="103" groupAlignment="0" max="-2" attributes="0">
+                                  <Component id="tour" pref="150" max="32767" attributes="0"/>
+                                  <Component id="ticket" pref="150" max="32767" attributes="0"/>
+                                  <Component id="date" pref="150" max="32767" attributes="0"/>
+                                  <Component id="days" pref="150" max="32767" attributes="0"/>
+                                  <Component id="passan" pref="150" max="32767" attributes="0"/>
+                                  <Component id="returnTickets" pref="150" max="32767" attributes="0"/>
+                                  <Component id="totalCost" alignment="0" pref="150" max="32767" attributes="0"/>
                               </Group>
                           </Group>
                       </Group>
@@ -220,11 +220,6 @@
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="returnTicketsActionPerformed"/>
       </Events>
     </Component>
-    <Component class="javax.swing.JTextField" name="totalCost">
-      <Properties>
-        <Property name="editable" type="boolean" value="false"/>
-      </Properties>
-    </Component>
     <Container class="javax.swing.JScrollPane" name="jScrollPane1">
       <AuxValues>
         <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
@@ -316,6 +311,14 @@
         </Property>
         <Property name="horizontalAlignment" type="int" value="0"/>
         <Property name="text" type="java.lang.String" value="Tour Booking APP"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JSpinner" name="totalCost">
+      <Properties>
+        <Property name="model" type="javax.swing.SpinnerModel" editor="org.netbeans.modules.form.editors2.SpinnerModelEditor">
+          <SpinnerModel initial="1.0" numberType="java.lang.Double" stepSize="1.0" type="number"/>
+        </Property>
+        <Property name="enabled" type="boolean" value="false"/>
       </Properties>
     </Component>
   </SubComponents>

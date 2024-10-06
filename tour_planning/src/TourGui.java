@@ -52,6 +52,7 @@ public class TourGui extends javax.swing.JFrame {
     }
 
     void showReport1() {
+
         try {
             sql = "SELECT ticket_no,tour_name,passangers,total_cost FROM ticket_details td join tour_master tm on td.tour_id = tm.tour_id where return_ticket = 0";
             ps = con.prepareStatement(sql);
@@ -70,6 +71,7 @@ public class TourGui extends javax.swing.JFrame {
         } catch (SQLException ex) {
             Logger.getLogger(TourGui.class.getName()).log(Level.SEVERE, null, ex);
         }
+
     }
 
     void fillCost() {
@@ -82,15 +84,13 @@ public class TourGui extends javax.swing.JFrame {
             ResultSet rs = ps.executeQuery();
             rs.next();
             double cost = rs.getDouble(1);
-            int passanger = Integer.parseInt(passan.getValue().toString());
-            int totalDays = Integer.parseInt(days.getValue().toString());
+            int passanger =(int) passan.getValue();
+            int totalDays = (int) days.getValue();
+            cost = cost * passanger * totalDays;
 
             boolean ret = returnTickets.isSelected();
-            cost = (passanger+totalDays)*cost;
-
-            double retCost = cost + (cost * 1.10);
-            cost = ret ? retCost : cost;
-            totalCost.setText(String.valueOf(cost));
+            cost = ret ? cost * 1.10 : cost;
+            totalCost.setValue(cost);
 
         } catch (SQLException ex) {
             Logger.getLogger(TourGui.class.getName()).log(Level.SEVERE, null, ex);
@@ -142,12 +142,12 @@ public class TourGui extends javax.swing.JFrame {
         days = new javax.swing.JSpinner();
         passan = new javax.swing.JSpinner();
         returnTickets = new javax.swing.JCheckBox();
-        totalCost = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
         report1 = new javax.swing.JTable();
         jScrollPane2 = new javax.swing.JScrollPane();
         report2 = new javax.swing.JTable();
         jLabel8 = new javax.swing.JLabel();
+        totalCost = new javax.swing.JSpinner();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -203,8 +203,6 @@ public class TourGui extends javax.swing.JFrame {
             }
         });
 
-        totalCost.setEditable(false);
-
         report1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -235,6 +233,9 @@ public class TourGui extends javax.swing.JFrame {
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel8.setText("Tour Booking APP");
 
+        totalCost.setModel(new javax.swing.SpinnerNumberModel(1.0d, null, null, 1.0d));
+        totalCost.setEnabled(false);
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -256,14 +257,14 @@ public class TourGui extends javax.swing.JFrame {
                                     .addComponent(jLabel6, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
                                     .addComponent(jLabel7, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE))
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(tour, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(ticket, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(date, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(days, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(passan, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(returnTickets, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(totalCost, javax.swing.GroupLayout.PREFERRED_SIZE, 150, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(tour, 0, 150, Short.MAX_VALUE)
+                                    .addComponent(ticket, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
+                                    .addComponent(date, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
+                                    .addComponent(days, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
+                                    .addComponent(passan, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
+                                    .addComponent(returnTickets, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE)
+                                    .addComponent(totalCost, javax.swing.GroupLayout.DEFAULT_SIZE, 150, Short.MAX_VALUE))))
                         .addGap(18, 18, 18)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                             .addComponent(jScrollPane2)
@@ -325,7 +326,7 @@ public class TourGui extends javax.swing.JFrame {
             ps.setObject(1, ticket.getValue());
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-JOptionPane.showMessageDialog(rootPane, "ticket id exists");
+                JOptionPane.showMessageDialog(rootPane, "ticket id exists");
                 return;
             }
         } catch (SQLException ex) {
@@ -352,7 +353,7 @@ JOptionPane.showMessageDialog(rootPane, "ticket id exists");
             ps.setObject(4, days.getValue());
             ps.setObject(5, passan.getValue());
             ps.setObject(6, returnTickets.isSelected());
-            ps.setObject(7, totalCost.getText());
+            ps.setObject(7, totalCost.getValue());
             int executeUpdate = ps.executeUpdate();
 
             showReport1();
@@ -438,7 +439,7 @@ JOptionPane.showMessageDialog(rootPane, "ticket id exists");
     private javax.swing.JTable report2;
     private javax.swing.JCheckBox returnTickets;
     private javax.swing.JSpinner ticket;
-    private javax.swing.JTextField totalCost;
+    private javax.swing.JSpinner totalCost;
     private javax.swing.JComboBox<String> tour;
     // End of variables declaration//GEN-END:variables
 }
