@@ -3,12 +3,17 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
  */
 
-import java.awt.Color;
 import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.Temporal;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
+import javax.swing.SpinnerDateModel;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -34,7 +39,7 @@ public class TourGui extends javax.swing.JFrame {
 
     void showReport2() {
         try {
-            sql = "SELECT "
+            sql = "     SELECT "
                     + "     tour_name,"
                     + "     sum(total_cost) "
                     + " FROM ticket_details td "
@@ -103,7 +108,7 @@ public class TourGui extends javax.swing.JFrame {
             rs.next();
 
             double cost = rs.getDouble(1);
-            int passanger =(int) passan.getValue();
+            int passanger = (int) passan.getValue();
             int totalDays = (int) days.getValue();
             cost = cost * passanger * totalDays;
 
@@ -147,13 +152,13 @@ public class TourGui extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel1 = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
-        jLabel4 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel6 = new javax.swing.JLabel();
-        jLabel7 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel1 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel2 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel3 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel4 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel5 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel6 = new javax.swing.JLabel();
+        javax.swing.JLabel jLabel7 = new javax.swing.JLabel();
         bookTicketBtn = new javax.swing.JButton();
         tour = new javax.swing.JComboBox<>();
         ticket = new javax.swing.JSpinner();
@@ -161,12 +166,12 @@ public class TourGui extends javax.swing.JFrame {
         days = new javax.swing.JSpinner();
         passan = new javax.swing.JSpinner();
         returnTickets = new javax.swing.JCheckBox();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        report1 = new javax.swing.JTable();
-        jScrollPane2 = new javax.swing.JScrollPane();
-        report2 = new javax.swing.JTable();
-        jLabel8 = new javax.swing.JLabel();
         totalCost = new javax.swing.JSpinner();
+        javax.swing.JScrollPane jScrollPane1 = new javax.swing.JScrollPane();
+        report1 = new javax.swing.JTable();
+        javax.swing.JScrollPane jScrollPane2 = new javax.swing.JScrollPane();
+        report2 = new javax.swing.JTable();
+        javax.swing.JLabel jLabel8 = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -200,6 +205,11 @@ public class TourGui extends javax.swing.JFrame {
         ticket.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
 
         date.setModel(new javax.swing.SpinnerDateModel());
+        date.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                dateStateChanged(evt);
+            }
+        });
 
         days.setModel(new javax.swing.SpinnerNumberModel(1, 1, null, 1));
         days.addChangeListener(new javax.swing.event.ChangeListener() {
@@ -222,6 +232,9 @@ public class TourGui extends javax.swing.JFrame {
             }
         });
 
+        totalCost.setModel(new javax.swing.SpinnerNumberModel(1.0d, null, null, 1.0d));
+        totalCost.setEnabled(false);
+
         report1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null},
@@ -233,6 +246,7 @@ public class TourGui extends javax.swing.JFrame {
                 "Ticket No", "Tour Name", "Passangers", "Total Cost"
             }
         ));
+        report1.setEnabled(false);
         jScrollPane1.setViewportView(report1);
 
         report2.setModel(new javax.swing.table.DefaultTableModel(
@@ -246,14 +260,12 @@ public class TourGui extends javax.swing.JFrame {
                 "Tour Name", "Grand Total Cost"
             }
         ));
+        report2.setEnabled(false);
         jScrollPane2.setViewportView(report2);
 
         jLabel8.setFont(new java.awt.Font("Segoe UI", 0, 24)); // NOI18N
         jLabel8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         jLabel8.setText("Tour Booking APP");
-
-        totalCost.setModel(new javax.swing.SpinnerNumberModel(1.0d, null, null, 1.0d));
-        totalCost.setEnabled(false);
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -404,6 +416,25 @@ public class TourGui extends javax.swing.JFrame {
         fillCost();
     }//GEN-LAST:event_passanStateChanged
 
+    private void dateStateChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_dateStateChanged
+        // TODO add your handling code here:
+        SpinnerDateModel sdm = (SpinnerDateModel) date.getModel();
+        Date date1 = sdm.getDate();
+
+        LocalDate currentLocalDate = new Date().toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        LocalDate todayLocalDate = date1.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+        long dayDifferences = ChronoUnit.DAYS.between(currentLocalDate, todayLocalDate);
+        long monthDifferences = ChronoUnit.MONTHS.between(currentLocalDate, todayLocalDate);
+        long yearDifferences = ChronoUnit.YEARS.between(currentLocalDate, todayLocalDate);
+        System.out.println(
+                ("days %s - months %s - years %s").formatted(
+                        dayDifferences,
+                        monthDifferences,
+                        yearDifferences
+                ));
+    }//GEN-LAST:event_dateStateChanged
+
     /**
      * @param args the command line arguments
      */
@@ -443,16 +474,6 @@ public class TourGui extends javax.swing.JFrame {
     private javax.swing.JButton bookTicketBtn;
     private javax.swing.JSpinner date;
     private javax.swing.JSpinner days;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel6;
-    private javax.swing.JLabel jLabel7;
-    private javax.swing.JLabel jLabel8;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JSpinner passan;
     private javax.swing.JTable report1;
     private javax.swing.JTable report2;
