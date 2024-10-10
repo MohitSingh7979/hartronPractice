@@ -72,7 +72,7 @@ public class GuiRailway extends javax.swing.JFrame {
                     + " count(booking_id),"
                     + " sum(total_amount),"
                     + " available_seats "
-                    + " FROM ticket_booking tb join train_master tm on tb.train_id = tm.train_id group by train_name,available_seats");
+                    + " FROM ticket_booking tb right join train_master tm on tb.train_id = tm.train_id group by train_name,available_seats");
             ResultSet rs = ps.executeQuery();
 
             DefaultTableModel tm = (DefaultTableModel) jTable2.getModel();
@@ -355,10 +355,10 @@ public class GuiRailway extends javax.swing.JFrame {
             rs = ps.executeQuery();
             rs.next();
             int trainId = rs.getInt(1);
-            int seats = rs.getInt(7);
             int avail = rs.getInt(8);
 
             int totalTickets = (int) tickets.getValue();
+
             if (avail >= totalTickets) {
                 PreparedStatement ps1 = con.prepareStatement("UPDATE `railway_management`.`train_master` SET `available_seats` = ? WHERE (`train_id` = ?)");
                 ps1.setObject(1, avail - totalTickets);
